@@ -1,0 +1,17 @@
+target/
+*.class
+*.log
+
+# IDEs
+.idea/ .project .classpath .settings/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven wrapper: manter no repo (não ignore)
+!.mvn/
+!mvnw
+!mvnw.cmd
+!pom.xml
