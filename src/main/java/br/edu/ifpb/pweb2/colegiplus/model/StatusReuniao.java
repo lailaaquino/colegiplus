@@ -2,11 +2,10 @@ package br.edu.ifpb.pweb2.colegiplus.model;
 import lombok.Getter;
 import lombok.AllArgsConstructor;
 
-@Getter 
+@Getter
 @AllArgsConstructor
-public enum TipoDecisao {
-    DEFERIMENTO(1), 
-    INDEFERIMENTO(2); 
-
-    private final int codigo; 
+public enum StatusReuniao {
+    ENCERRADA(1), 
+    PROGRAMADA(2); 
+    private final int codigo;
 }
