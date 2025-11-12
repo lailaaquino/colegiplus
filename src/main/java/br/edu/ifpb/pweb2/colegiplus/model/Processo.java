@@ -1,5 +1,6 @@
 package br.edu.ifpb.pweb2.colegiplus.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -12,15 +13,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table (name = "processo")
-public class Processo {
+public class Processo implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +47,6 @@ public class Processo {
     @Lob 
     private byte[] parecer;
 
-
     @Enumerated(EnumType.STRING)
     private TipoDecisao decisaoRelator;
 
@@ -51,69 +55,13 @@ public class Processo {
     private Assunto assunto;
 
     @ManyToOne
-    @JoinColumn(name = "interessado_id")
+    @JoinColumn(name = "aluno_interessado_id")
     private Aluno interessado;
 
     @ManyToOne
-    @JoinColumn(name = "relator_id")
+    @JoinColumn(name = "professor_relator_id")
     private Professor relator;
 
+} 
+
    
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    } 
-
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public Date getDataRecepcao() {
-        return dataRecepcao;
-    }
-
-    public void setDataRecepcao(Date dataRecepcao) {
-        this.dataRecepcao = dataRecepcao;
-    }
-
-    public Date getDataDistribuicao() {
-        return dataDistribuicao;
-    }
-
-    public void setDataDistribuicao(Date dataDistribuicao) {
-        this.dataDistribuicao = dataDistribuicao;
-    }
-
-    public Date getDataParecer() {
-        return dataParecer;
-    }
-
-    public void setDataParecer(Date dataParecer) {
-        this.dataParecer = dataParecer;
-    }
-
-    public byte[] getParecer() {
-        return parecer;
-    }
-
-    public void setParecer(byte[] parecer) {
-        this.parecer = parecer;
-    }
-
-    public TipoDecisao getDecisaoRelator() {
-        return decisaoRelator;
-    }
-
-    public void setDecisaoRelator(TipoDecisao decisaoRelator) {
-        this.decisaoRelator = decisaoRelator;
-    }   
-     
-
-}
