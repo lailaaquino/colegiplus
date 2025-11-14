@@ -9,6 +9,7 @@ import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.Assunto;
 import br.edu.ifpb.pweb2.colegiplus.model.Processo;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
+import br.edu.ifpb.pweb2.colegiplus.model.StatusProcesso;
 
 @Repository
 public interface ProcessoRepository extends JpaRepository<Processo, Long> {
@@ -24,4 +25,8 @@ public interface ProcessoRepository extends JpaRepository<Processo, Long> {
     List<Processo> findByInteressadoNomeContainingIgnoreCase(String nomeAluno);
 
     List<Processo> findByRelatorNomeContainingIgnoreCase(String nomeProfessor);
+
+    List<Processo> findByStatus(StatusProcesso status);
+
+    List<Processo> findByStatusAndInteressado(StatusProcesso status, Aluno interessado);
 }
