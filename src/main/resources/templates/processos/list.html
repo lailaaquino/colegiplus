@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegi+ - Processos Cadastrados</title>
+</head>
+<body>
+    <h1>Processos Cadastrados</h1>
+    <hr/>
+
+    <form th:action="@{/processos/form}" method="get">
+        <button type="submit">Cadastrar Novo Processo</button>
+    </form>
+    <br/>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>N. do processo</th>
+                <th>Assunto</th>
+                <th>Texto de Requerimento</th>
+                <th>Data de Recepção</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="processo : ${processos}">
+                <td><a th:href="@{/processos/{numero}(id=${processo.numero})}" th:text="${processo.numero}"></a></td>
+                <td><a th:text="${processo.assunto?.nome ?: 'N/A'}"></a></td>
+                <td><a th:text="${processo?.textoRequerimento ?: 'N/A'}"></a></td> 
+                <td th:text="${#dates.format(processo.dataRecepcao, 'dd/MM/yyyy')}"></td>
+                <td><a th:text="${processo.status}"></a></td>
+
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
