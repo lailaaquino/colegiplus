@@ -49,14 +49,6 @@ public class ProcessoService implements Service<Processo, Long> {
         return processoRepository.save(p);
     }
 
-    public List<Processo> listarProcessosDoProfessor(Professor professor) {
-        return processoRepository.findByRelator(professor);
-    }
-
-    public List<Processo> listarProcessosDoCoordenador(Professor professor) {
-        return processoRepository.findAll();
-    }
-
 
     public List<Processo> filtrarProcessosDoAluno(
             Aluno aluno,
@@ -105,5 +97,27 @@ public class ProcessoService implements Service<Processo, Long> {
         }
 
         return processos;
+    }
+
+    public List<Processo> listarProcessosDoProfessor(Professor professor) {
+        return processoRepository.findByRelator(professor);
+    }
+
+    @Transactional 
+    public void distribuirProcesso(Long processoId, Professor relator) {
+        Processo p = this.findById(processoId);
+        if (p ==null) {
+            throw new IllegalArgumentException ("Processo não encontrado");
+        }
+
+        p.setRelator(relator);
+        p.setStatus(StatusProcesso.DISTRIBUIDO);
+        p.setDataDistribuicao(Date.from(Instant.now()));
+
+        processoRepository.save(p);
+    }
+
+    public List<Processo> findByStatus(StatusProcesso status) {
+        return processoRepository.findByStatus(status);
     }
 }
