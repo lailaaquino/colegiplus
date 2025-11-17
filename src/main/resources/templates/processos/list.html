@@ -6,34 +6,50 @@
     <title>Colegi+ - Processos Cadastrados</title>
 </head>
 <body>
-    <h1>Processos Cadastrados</h1>
-    <hr/>
+<h1>Processos Cadastrados</h1>
+<hr/>
 
-    <form th:action="@{/processos/form}" method="get">
+<div th:if="${session.tipoUsuario == 'ALUNO'}">
+    <form th:action="@{/processos/novo}" method="get">
         <button type="submit">Cadastrar Novo Processo</button>
     </form>
     <br/>
+</div>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>N. do processo</th>
-                <th>Assunto</th>
-                <th>Texto de Requerimento</th>
-                <th>Data de Recepção</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="processo : ${processos}">
-                <td><a th:href="@{/processos/{numero}(id=${processo.numero})}" th:text="${processo.numero}"></a></td>
-                <td><a th:text="${processo.assunto?.nome ?: 'N/A'}"></a></td>
-                <td><a th:text="${processo?.textoRequerimento ?: 'N/A'}"></a></td> 
-                <td th:text="${#dates.format(processo.dataRecepcao, 'dd/MM/yyyy')}"></td>
-                <td><a th:text="${processo.status}"></a></td>
+<hr/>
 
-            </tr>
-        </tbody>
-    </table>
+<table border="1">
+    <thead>
+    <tr>
+        <th>N. do processo</th>
+        <th>Assunto</th>
+        <th>Texto de Requerimento</th>
+        <th>Data de Recepção</th>
+        <th>Status</th>
+
+        <th th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}">
+            Relator
+        </th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="processo : ${processos}">
+        <td th:text="${processo.numero}"></td>
+
+        <td th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"></td>
+
+        <td th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"></td>
+
+        <td th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"></td>
+
+        <td th:text="${processo.status}"></td>
+
+        <td th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
+            th:text="${processo.relator != null ? processo.relator.nome : '—'}">
+        </td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

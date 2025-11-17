@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Cadastro de Processo</h1>
-    <form th:action="@{/processos/save}" method="post" th:object="${processo}">
+    <form th:action="@{/processos}" method="post" th:object="${processo}">
         <input type="hidden" th:field="*{id}" required/>
 
         <label for="assunto">Assunto:</label>
@@ -25,7 +25,6 @@
         <hr>
 
         <button type="submit">Cadastrar Processo</button>
-        <a th:href="@{/processos/list}">Cancelar</a>
-    
+        <a th:href="@{/processos}">Cancelar</a>
 </body>
 </html>
