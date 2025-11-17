@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
@@ -17,6 +21,7 @@ import br.edu.ifpb.pweb2.colegiplus.repository.ColegiadoRepository;
 import br.edu.ifpb.pweb2.colegiplus.repository.ProfessorRepository;
 import br.edu.ifpb.pweb2.colegiplus.service.ProcessoService;
 import jakarta.servlet.http.HttpSession;
+
 
 @Controller
 @RequestMapping("/processos")
@@ -48,7 +53,7 @@ public class ProcessoController {
         List<Processo> processos = List.of();
 
         if ("ALUNO".equals(tipo)) {
-            Aluno aluno = (Aluno) usuario;
+           Aluno aluno = (Aluno) usuario;
             processos = processoService.filtrarProcessosDoAluno(aluno, status, assuntoId, ordem);
 
             mv.addObject("assuntos", assuntoRepository.findAll());
@@ -62,8 +67,14 @@ public class ProcessoController {
         }
         else if ("COORDENADOR".equals(tipo)) {
             Professor coord = (Professor) usuario;
-            processos = processoService.listarProcessosDoCoordenador(coord);
 
+            if (status != null && !status.isBlank()) {
+                StatusProcesso sp = StatusProcesso.valueOf(status);
+                processos = processoService.findByStatus(sp);
+            } else {
+                processos = processoService.findAll();
+            }
+            
             Colegiado colegiado = colegiadoRepository.findByCoordenador(coord);
             List<Professor> membros = (colegiado != null)
                     ? colegiado.getMembros()
@@ -101,4 +112,45 @@ public class ProcessoController {
         processoService.saveForAluno(processo, aluno);
         return "redirect:/processos";
     }
-}
+
+    @GetMapping ("/{id}/distribuir")
+    public ModelAndView formDistribuir(@PathVariable Long id, HttpSession session) {
+        String tipo = (String) session.getAttribute("tipoUsuario");
+        if (!"COORDENADOR".equals(tipo)) {
+           return new ModelAndView("redirect:/processos");
+        }
+
+
+        Professor coord = (Professor) session.getAttribute("usuario");
+        Processo processo = processoService.findById(id);
+
+        Colegiado colegiado = colegiadoRepository.findByCoordenador(coord);
+        List <Professor> membros = (colegiado !=null)
+            ? colegiado.getMembros()
+            : professorRepository.findAll();
+
+        ModelAndView modelAndView = new ModelAndView("processos/distribuir");
+        modelAndView.addObject("processo", processo);
+        modelAndView.addObject("membros", membros);
+        return modelAndView; 
+    }
+
+    @PostMapping("/{id}/distribuir")
+    public String distribuir(
+        @PathVariable Long id,
+        @RequestParam("professorId") Long professorId,
+        HttpSession session) {
+
+    String tipo = (String) session.getAttribute("tipoUsuario");
+    if (!"COORDENADOR".equals(tipo)) {
+        return "redirect:/processos";
+    }
+
+    Professor relator = professorRepository.findById(professorId).orElse(null);
+    if (relator != null) {
+        processoService.distribuirProcesso(id, relator);
+    }
+    return "redirect:/processos";
+        }  
+    }
+    
