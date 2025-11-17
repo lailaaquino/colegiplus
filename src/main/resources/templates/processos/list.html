@@ -1,55 +1,131 @@
 <!DOCTYPE html>
 <html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Colegi+ - Processos Cadastrados</title>
-</head>
-<body>
-<h1>Processos Cadastrados</h1>
-<hr/>
+  </head>
+  <body>
+    <h1>Processos Cadastrados</h1>
+    <hr />
 
-<div th:if="${session.tipoUsuario == 'ALUNO'}">
-    <form th:action="@{/processos/novo}" method="get">
+    <div th:if="${session.tipoUsuario == 'ALUNO'}">
+      <form th:action="@{/processos/novo}" method="get">
         <button type="submit">Cadastrar Novo Processo</button>
+      </form>
+      <br />
+    </div>
+
+    <form
+      th:if="${session.tipoUsuario == 'ALUNO'}"
+      method="get"
+      th:action="@{/processos}"
+    >
+      <label>Status:</label>
+      <select name="status">
+        <option value="">Todos</option>
+        <option value="CRIADO" th:selected="${statusSelecionado == 'CRIADO'}">
+          Criado
+        </option>
+        <option
+          value="DISTRIBUIDO"
+          th:selected="${statusSelecionado == 'DISTRIBUIDO'}"
+        >
+          Distribuído
+        </option>
+        <option
+          value="EM_PAUTA"
+          th:selected="${statusSelecionado == 'EM_PAUTA'}"
+        >
+          Em pauta
+        </option>
+        <option
+          value="DISPONIVEL"
+          th:selected="${statusSelecionado == 'DISPONIVEL'}"
+        >
+          Disponível
+        </option>
+        <option value="JULGADO" th:selected="${statusSelecionado == 'JULGADO'}">
+          Julgado
+        </option>
+      </select>
+
+      <label>Assunto:</label>
+      <select name="assuntoId">
+        <option value="">Todos</option>
+        <option
+          th:each="a : ${assuntos}"
+          th:value="${a.id}"
+          th:text="${a.nome}"
+          th:selected="${assuntoSelecionado != null and a.id == assuntoSelecionado}"
+        ></option>
+      </select>
+
+      <label>Ordenar por data:</label>
+      <select name="ordem">
+        <option value="asc" th:selected="${ordemSelecionada == 'asc'}">
+          Mais antigos primeiro
+        </option>
+        <option value="desc" th:selected="${ordemSelecionada == 'desc'}">
+          Mais recentes primeiro
+        </option>
+      </select>
+
+      <button type="submit">Filtrar</button>
     </form>
-    <br/>
-</div>
 
-<hr/>
+    <hr />
 
-<table border="1">
-    <thead>
-    <tr>
-        <th>N. do processo</th>
-        <th>Assunto</th>
-        <th>Texto de Requerimento</th>
-        <th>Data de Recepção</th>
-        <th>Status</th>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>N. do processo</th>
+          <th>Assunto</th>
+          <th>Texto de Requerimento</th>
+          <th>Data de Recepção</th>
+          <th>Status</th>
 
-        <th th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}">
+          <th
+            th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
+          >
             Relator
-        </th>
+          </th>
 
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="processo : ${processos}">
-        <td th:text="${processo.numero}"></td>
+          <th th:if="${session.tipoUsuario == 'COORDENADOR'}">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="processo : ${processos}">
+          <td th:text="${processo.numero}"></td>
 
-        <td th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"></td>
+          <td
+            th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"
+          ></td>
 
-        <td th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"></td>
+          <td
+            th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"
+          ></td>
 
-        <td th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"></td>
+          <td
+            th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"
+          ></td>
 
-        <td th:text="${processo.status}"></td>
+          <td th:text="${processo.status}"></td>
 
-        <td th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
-            th:text="${processo.relator != null ? processo.relator.nome : '—'}">
-        </td>
-    </tr>
-    </tbody>
-</table>
-</body>
+          <td
+            th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
+            th:text="${processo.relator != null ? processo.relator.nome : '—'}"
+          ></td>
+          <td th:if="${session.tipoUsuario == 'COORDENADOR'}">
+            <a
+              th:if="${processo.relator == null}"
+              th:href="@{/processos/{id}/distribuir(id=${processo.id})}"
+            >
+              Distribuir
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
 </html>
