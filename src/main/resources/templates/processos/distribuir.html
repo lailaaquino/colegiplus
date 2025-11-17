@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Distribuir Processo</title>
+  </head>
+  <body>
+    <h1>Distribuir Processo</h1>
+
+    <p>
+      Número: <span th:text="${processo.numero}"></span><br />
+      Aluno:
+      <span
+        th:text="${processo.interessado != null ? processo.interessado.nome : 'N/A'}"
+      ></span
+      ><br />
+      Assunto:
+      <span
+        th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"
+      ></span
+      ><br />
+      Status atual: <span th:text="${processo.status}"></span>
+    </p>
+
+    <hr />
+    <form
+      th:action="@{/processos/{id}/distribuir(id=${processo.id})}"
+      method="post"
+    >
+      <label>Professor relator:</label>
+      <select name="professorId" required>
+        <option value="">Selecione um professor</option>
+        <option
+          th:each="prof : ${membros}"
+          th:value="${prof.id}"
+          th:text="${prof.nome}"
+        ></option>
+      </select>
+
+      <button type="submit">Distribuir</button>
+    </form>
+
+    <br />
+    <a th:href="@{/processos}">Voltar</a>
+  </body>
+</html>
