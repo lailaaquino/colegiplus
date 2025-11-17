@@ -27,7 +27,10 @@ O sistema exige registros nas tabelas **`Aluno`** e **`Assunto`**. Você deve ex
 -- -----------------------------------------
 
 -- 1. Inserir um ALUNO (CRUCIAL para o ProcessoService)
-INSERT INTO aluno (id, login, matricula, nome, senha, telefone) VALUES (2, 'aluno.teste@ifpb.edu.br', 123, 'Aluno Teste', '123', 12345678);
+INSERT INTO aluno (id, login, matricula, nome, senha, telefone)
+VALUES 
+(2, 'aluno.teste@ifpb.edu.br', 123, 'Aluno Teste', '123', 12345678),
+(3, 'aluno2.teste@ifpb.edu.br', 456, 'Aluno Teste 2', '123', 23456789);
 
 -- 2. Inserir Assuntos (Necessário para o formulário)
 INSERT INTO assunto (id, nome)
@@ -35,4 +38,13 @@ VALUES
     (2, 'Aproveitamento de Componente Curricular'),
     (3, 'Trancamento de Disciplina'),
     (4, 'Revisão de Média');
+
+
+-- 3. Inserir um PROFESSOR (necessário para listarProcessosDoProfessor)
+
+INSERT INTO professor (nome, fone, matricula, login, senha, coordenador) 
+VALUES 
+('Coordenador Teste', '83999999999', '456', 'cordenador.teste@ifpb.edu.br', '123', true),
+('Professor Teste', '83999999999', '789', 'professor.teste@ifpb.edu.br', '123', false);
+
 ```
