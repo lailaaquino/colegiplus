@@ -99,6 +99,38 @@ public class ProcessoService implements Service<Processo, Long> {
         return processos;
     }
 
+    public List<Processo> filtrarProcessosDoCoordenador(
+            String status,
+            String nomeAluno,
+            String nomeProfessor) {
+
+        List<Processo> processos = processoRepository.findAll();
+
+        if (status != null && !status.isBlank()) {
+            StatusProcesso sp = StatusProcesso.valueOf(status);
+            processos = processos.stream()
+                    .filter(p -> p.getStatus() == sp)
+                    .toList();
+        }
+
+        if (nomeAluno != null && !nomeAluno.isBlank()) {
+            processos = processos.stream()
+                    .filter(p -> p.getInteressado() != null &&
+                                p.getInteressado().getNome().toLowerCase().contains(nomeAluno.toLowerCase()))
+                    .toList();
+        }
+
+        if (nomeProfessor != null && !nomeProfessor.isBlank()) {
+            processos = processos.stream()
+                    .filter(p -> p.getRelator() != null &&
+                                p.getRelator().getNome().toLowerCase().contains(nomeProfessor.toLowerCase()))
+                    .toList();
+        }
+
+        return processos;
+    }
+
+
     public List<Processo> listarProcessosDoProfessor(Professor professor) {
         return processoRepository.findByRelator(professor);
     }

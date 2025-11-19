@@ -41,10 +41,12 @@ public class ProcessoController {
 
     @GetMapping
     public ModelAndView listar(
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) Long assuntoId,
-            @RequestParam(required = false, defaultValue = "asc") String ordem,
-            HttpSession session) {
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) Long assuntoId,
+        @RequestParam(required = false, defaultValue = "asc") String ordem,
+        @RequestParam(required = false) String nomeAluno,
+        @RequestParam(required = false) String nomeProfessor,
+        HttpSession session) {
 
         ModelAndView mv = new ModelAndView("processos/list");
         String tipo = (String) session.getAttribute("tipoUsuario");
@@ -53,7 +55,7 @@ public class ProcessoController {
         List<Processo> processos = List.of();
 
         if ("ALUNO".equals(tipo)) {
-           Aluno aluno = (Aluno) usuario;
+            Aluno aluno = (Aluno) usuario;
             processos = processoService.filtrarProcessosDoAluno(aluno, status, assuntoId, ordem);
 
             mv.addObject("assuntos", assuntoRepository.findAll());
@@ -68,13 +70,8 @@ public class ProcessoController {
         else if ("COORDENADOR".equals(tipo)) {
             Professor coord = (Professor) usuario;
 
-            if (status != null && !status.isBlank()) {
-                StatusProcesso sp = StatusProcesso.valueOf(status);
-                processos = processoService.findByStatus(sp);
-            } else {
-                processos = processoService.findAll();
-            }
-            
+            processos = processoService.filtrarProcessosDoCoordenador(status, nomeAluno, nomeProfessor);
+
             Colegiado colegiado = colegiadoRepository.findByCoordenador(coord);
             List<Professor> membros = (colegiado != null)
                     ? colegiado.getMembros()
@@ -82,6 +79,8 @@ public class ProcessoController {
 
             mv.addObject("membros", membros);
             mv.addObject("statusSelecionado", status);
+            mv.addObject("nomeAluno", nomeAluno);
+            mv.addObject("nomeProfessor", nomeProfessor);
         }
 
         mv.addObject("processos", processos);

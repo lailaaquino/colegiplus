@@ -9,6 +9,7 @@
     <h1>Processos Cadastrados</h1>
     <hr />
 
+    <!-- Botão para novo processo (apenas ALUNO) -->
     <div th:if="${session.tipoUsuario == 'ALUNO'}">
       <form th:action="@{/processos/novo}" method="get">
         <button type="submit">Cadastrar Novo Processo</button>
@@ -16,6 +17,7 @@
       <br />
     </div>
 
+    <!-- Filtros do ALUNO -->
     <form
       th:if="${session.tipoUsuario == 'ALUNO'}"
       method="get"
@@ -74,6 +76,61 @@
       <button type="submit">Filtrar</button>
     </form>
 
+    <!-- Filtros do COORDENADOR -->
+    <form
+      th:if="${session.tipoUsuario == 'COORDENADOR'}"
+      method="get"
+      th:action="@{/processos}"
+      style="margin-top: 1rem"
+    >
+      <label>Status:</label>
+      <select name="status">
+        <option value="">Todos</option>
+        <option value="CRIADO" th:selected="${statusSelecionado == 'CRIADO'}">
+          Criado
+        </option>
+        <option
+          value="DISTRIBUIDO"
+          th:selected="${statusSelecionado == 'DISTRIBUIDO'}"
+        >
+          Distribuído
+        </option>
+        <option
+          value="EM_PAUTA"
+          th:selected="${statusSelecionado == 'EM_PAUTA'}"
+        >
+          Em pauta
+        </option>
+        <option
+          value="DISPONIVEL"
+          th:selected="${statusSelecionado == 'DISPONIVEL'}"
+        >
+          Disponível
+        </option>
+        <option value="JULGADO" th:selected="${statusSelecionado == 'JULGADO'}">
+          Julgado
+        </option>
+      </select>
+
+      <label style="margin-left: 8px;">Aluno interessado:</label>
+      <input
+        type="text"
+        name="nomeAluno"
+        th:value="${nomeAluno}"
+        placeholder="Nome do aluno"
+      />
+
+      <label style="margin-left: 8px;">Professor relator:</label>
+      <input
+        type="text"
+        name="nomeProfessor"
+        th:value="${nomeProfessor}"
+        placeholder="Nome do professor"
+      />
+
+      <button type="submit" style="margin-left: 8px;">Filtrar</button>
+    </form>
+
     <hr />
 
     <table border="1">
@@ -95,6 +152,10 @@
         </tr>
       </thead>
       <tbody>
+        <tr th:if="${#lists.isEmpty(processos)}">
+          <td colspan="7">Nenhum processo encontrado.</td>
+        </tr>
+
         <tr th:each="processo : ${processos}">
           <td th:text="${processo.numero}"></td>
 
@@ -116,6 +177,7 @@
             th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
             th:text="${processo.relator != null ? processo.relator.nome : '—'}"
           ></td>
+
           <td th:if="${session.tipoUsuario == 'COORDENADOR'}">
             <a
               th:if="${processo.relator == null}"
