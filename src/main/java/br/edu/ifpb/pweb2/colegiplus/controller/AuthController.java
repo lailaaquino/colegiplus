@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import br.edu.ifpb.pweb2.colegiplus.model.Admin;
 import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
+import br.edu.ifpb.pweb2.colegiplus.repository.AdminRepository;
 import br.edu.ifpb.pweb2.colegiplus.repository.AlunoRepository;
 import br.edu.ifpb.pweb2.colegiplus.repository.ProfessorRepository;
 import jakarta.servlet.http.HttpSession;
@@ -24,6 +26,9 @@ public class AuthController {
 
     @Autowired
     private ProfessorRepository professorRepository;
+
+    @Autowired
+    private AdminRepository adminRepository;
 
     @GetMapping
     public ModelAndView getForm(ModelAndView model) {
@@ -59,6 +64,14 @@ public class AuthController {
             return model;
         }
 
+        Admin admin = isAdminValido(login, senha);
+        if (admin != null) {
+            session.setAttribute("usuario", admin);
+            session.setAttribute("tipoUsuario", "ADMIN");
+            model.setViewName("redirect:/home");
+            return model;
+        }
+
         redirectAttts.addFlashAttribute("mensagem", "Login e/ou senha inválidos!");
         model.setViewName("redirect:/auth");
         return model;
@@ -86,5 +99,13 @@ public class AuthController {
             return profBD;
         }
         return null;
+    }
+
+    private Admin isAdminValido(String login, String senha) {
+    Admin adminBD = adminRepository.findByLogin(login);
+    if (adminBD != null && adminBD.getSenha().equals(senha)) {
+        return adminBD;
+    }
+    return null;
     }
 }
