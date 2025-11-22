@@ -47,4 +47,8 @@ VALUES
 ('Coordenador Teste', '83999999999', '456', 'cordenador.teste@ifpb.edu.br', '123', true),
 ('Professor Teste', '83999999999', '789', 'professor.teste@ifpb.edu.br', '123', false);
 
+--Inserir Admin
+INSERT INTO admin (login, senha)
+VALUES ('admin@ifpb.edu.br', '123');
+
 ```
