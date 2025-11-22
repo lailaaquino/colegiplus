@@ -15,7 +15,6 @@ import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.Colegiado;
 import br.edu.ifpb.pweb2.colegiplus.model.Processo;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
-import br.edu.ifpb.pweb2.colegiplus.model.StatusProcesso;
 import br.edu.ifpb.pweb2.colegiplus.repository.AssuntoRepository;
 import br.edu.ifpb.pweb2.colegiplus.repository.ColegiadoRepository;
 import br.edu.ifpb.pweb2.colegiplus.repository.ProfessorRepository;
