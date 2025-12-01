@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Colegiados</title>
+</head>
+<body>
+    <h1>Gerenciamento de Colegiados</h1>
+    <hr/>
+    
+    <div th:if="${mensagem}" style="color: green; font-weight: bold; margin-bottom: 15px;">
+        <p th:text="${mensagem}"></p>
+    </div>
+
+    <a th:href="@{/colegiados/form}">
+        <button type="button">Cadastrar Novo Colegiado</button>
+    </a>
+    <br/><br/>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome do Colegiado</th>
+                <th>Coordenador</th>
+                <th>Membros</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${colegiados}">
+                <td th:text="${c.id}">1</td>
+                <td th:text="${c.nome}">Colegiado Teste</td>
+                <td th:text="${c.coordenador?.nome}">Nome do Professor Coordenador</td> 
+                
+                <td>
+                    <span th:text="${c.membros != null ? c.membros.size() : 0}">3</span>
+                    <span> membros</span>
+                </td>
+                
+                <td>
+                    <a th:href="@{/colegiados/{id}/edit(id=${c.id})}">Editar</a>
+                    &nbsp;|&nbsp;
+                    <a th:href="@{/colegiados/{id}/delete(id=${c.id})}" 
+                       onclick="return confirm('Deseja realmente DELETAR o colegiado ' + '${c.nome}' + '?');">Deletar</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

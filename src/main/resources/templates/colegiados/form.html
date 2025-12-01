@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${colegiado.id == null} ? 'Cadastrar Novo Colegiado' : 'Editar Colegiado'"></title>
+</head>
+<body>
+    <h1 th:text="${colegiado.id == null} ? 'Cadastrar Novo Colegiado' : 'Editar Colegiado'"></h1>
+    <hr/>
+
+    <form th:action="@{/colegiados}" th:object="${colegiado}" method="post">
+        
+        <input type="hidden" th:field="*{id}" />
+
+        <fieldset>
+            <legend>Dados do Colegiado</legend>
+            
+            <div>
+                <label for="nome">Nome do Colegiado:</label>
+                <input type="text" id="nome" th:field="*{nome}" required/>
+            </div>
+            <br/>
+
+            <div>
+                <label for="coordenador">Coordenador (Professor):</label>
+                <select id="coordenador" th:field="*{coordenador}" required>
+                    <option value="">-- Selecione o Coordenador --</option> 
+                    <option th:each="professor : ${todosProfessores}"
+                            th:value="${professor.id}"
+                            th:text="${professor.nome}">
+                        Nome do Professor
+                    </option>
+                </select>
+            </div>
+            <br/>
+
+            <div>
+                <label for="membros">Membros (Múltipla Seleção):</label>
+                <select id="membros" th:field="*{membros}" multiple="multiple" size="10">
+                    <option th:each="professor : ${todosProfessores}"
+                            th:value="${professor.id}"
+                            th:text="${professor.nome}">
+                        Nome do Professor
+                    </option>
+                </select>
+            </div>
+            
+        </fieldset>
+        <br/>
+
+        <button type="submit" th:text="${colegiado.id == null} ? 'Cadastrar' : 'Atualizar'">Salvar Colegiado</button>
+        
+        <a th:href="@{/colegiados}">
+            <button type="button">Cancelar e Voltar</button>
+        </a>
+    </form>
+</body>
+</html>
