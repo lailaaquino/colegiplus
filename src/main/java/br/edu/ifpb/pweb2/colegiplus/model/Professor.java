@@ -8,17 +8,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@ToString(exclude = {"processos", "colegiadosMembro", "colegiadosCoordenados"})
 public class Professor implements Serializable {
     private static final long serialVersionUID = 1L;
     
@@ -42,4 +45,18 @@ public class Professor implements Serializable {
 
     @OneToMany(mappedBy = "relator")
     private List<Processo> processos;
+
+    // --- NOVOS RELACIONAMENTOS COM COLEGIADO ---
+
+    // 1. Professor pode ser membro de VÁRIOS Colegiados (ManyToMany)
+    // O lado dono é em Colegiado, aqui usamos mappedBy="membros"
+    @ManyToMany(mappedBy = "membros") 
+    private List<Colegiado> colegiadosMembro;
+
+    // 2. Professor pode ser Coordenador de VÁRIOS Colegiados ao longo do tempo (OneToMany)
+    // O lado dono é em Colegiado, aqui usamos mappedBy="coordenador"
+    @OneToMany(mappedBy = "coordenador")
+    private List<Colegiado> colegiadosCoordenados;
+    
+    // ------------------------------------------
 }
