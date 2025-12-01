@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegi+ - Assuntos</title>
+</head>
+<body>
+
+    <h1>Assuntos de Processos</h1>
+    <hr/>
+
+    <p th:if="${mensagem}" th:text="${mensagem}" style="color: green;"></p>
+
+    <div th:if="${session.tipoUsuario == 'ADMIN'}">
+        <form th:action="@{/assuntos/form}" method="get">
+            <button type="submit">Cadastrar Novo Assunto</button>
+        </form>
+    </div>
+
+    <br/>
+    <hr/>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome do Assunto</th>
+
+                <!-- ações para admin -->
+                <th th:if="${session.tipoUsuario == 'ADMIN'}">Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr th:if="${#lists.isEmpty(assuntos)}">
+                <td colspan="3">Nenhum assunto encontrado.</td>
+            </tr>
+
+            <tr th:each="a : ${assuntos}">
+                <td th:text="${a.id}"></td>
+                <td th:text="${a.nome}"></td>
+
+                <td th:if="${session.tipoUsuario == 'ADMIN'}">
+                    <a th:href="@{'/assuntos/' + ${a.id}}">Editar</a>
+                    &nbsp;|&nbsp;
+                    <a th:href="@{'/assuntos/' + ${a.id} + '/delete'}"
+                       onclick="return confirm('Tem certeza que deseja excluir este assunto?');">
+                        Excluir
+                    </a>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
+
+</body>
+</html>
