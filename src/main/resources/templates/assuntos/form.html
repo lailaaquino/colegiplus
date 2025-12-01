@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegi+ - Cadastro de Assunto</title>
+</head>
+<body>
+
+    <h1 th:text="${assunto.id == null ? 'Cadastrar Assunto' : 'Editar Assunto'}"></h1>
+
+    <form th:action="@{/assuntos}" method="post" th:object="${assunto}">
+        <input type="hidden" th:field="*{id}"/>
+
+        <label for="nome">Nome do Assunto:</label>
+        <input type="text" id="nome" th:field="*{nome}" placeholder="Digite o nome do assunto" required>
+        <br><br>
+
+        <hr>
+
+        <button type="submit">Salvar</button>
+        <a th:href="@{/assuntos}">Cancelar</a>
+    </form>
+
+</body>
+</html>
