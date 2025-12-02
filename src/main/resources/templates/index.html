@@ -1,13 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Colegi+</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Welcome to Colegi+</h1>
     <p>Your platform for managing academic processes.</p>
-    
-</body>
+    <div th:if="${session.tipoUsuario == null}">
+      <p>Faça Login para continuar.</p>
+      <a th:href="@{/auth}">Ir para Login</a>
+    </div>
+
+    <div th:if="${session.tipoUsuario != null}">
+      <hr />
+
+      <div th:if="${session.tipoUsuario == 'ALUNO'}">
+        <h3>Área do Aluno</h3>
+        <ul>
+          <li><a th:href="@{/processos/novo}">Abrir Novo Processo</a></li>
+          <li><a th:href="@{/processos}">Consultar meus processos</a></li>
+        </ul>
+      </div>
+
+      <div th:if="${session.tipoUsuario == 'COORDENADOR'}">
+        <h3>Área do Coordenador</h3>
+        <ul>
+          <li><a th:href="@{/processos}">Analisar Processos Pendentes</a></li>
+        </ul>
+      </div>
+
+      <div th:if="${session.tipoUsuario == 'ADMIN'}">
+        <h3>Área do Administrador</h3>
+        <ul>
+          <li><a th:href="@{/assuntos/form}">Cadastrar Assuntos</a></li>
+          <li><a th:href="@{/assuntos}">Gerenciar Assuntos</a></li>
+          <li><a th:href="@{/colegiados}">Gerenciar Colegiados</a></li>
+        </ul>
+      </div>
+
+      <div th:if="${session.tipoUsuario == 'PROFESSOR'}">
+        <h3>Área do Professor</h3>
+        <ul>
+          <li><a th:href="@{/processos}">Revisar Processos Atribuídos</a></li>
+        </ul>
+      </div>
+      <hr />
+      <div>
+        <a th:href="@{/auth/logout}">Sair</a>
+      </div>
+    </div>
+  </body>
 </html>
