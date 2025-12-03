@@ -45,18 +45,11 @@ public class Professor implements Serializable {
 
     @OneToMany(mappedBy = "relator")
     private List<Processo> processos;
-
-    // --- NOVOS RELACIONAMENTOS COM COLEGIADO ---
-
-    // 1. Professor pode ser membro de VÁRIOS Colegiados (ManyToMany)
-    // O lado dono é em Colegiado, aqui usamos mappedBy="membros"
+    
     @ManyToMany(mappedBy = "membros") 
     private List<Colegiado> colegiadosMembro;
 
-    // 2. Professor pode ser Coordenador de VÁRIOS Colegiados ao longo do tempo (OneToMany)
-    // O lado dono é em Colegiado, aqui usamos mappedBy="coordenador"
     @OneToMany(mappedBy = "coordenador")
     private List<Colegiado> colegiadosCoordenados;
     
-    // ------------------------------------------
 }

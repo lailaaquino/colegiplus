@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegi+ - Lista de Professores</title>
+
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+    <th:block th:replace="~{header :: menu}"></th:block>
+
+    <h1 class="text-3xl font-bold tracking-tight mb-4">
+        Lista de <span class="text-indigo-400">Professores</span>
+    </h1>
+
+    <hr class="border-slate-800 mb-6">
+    
+    <p th:if="${mensagem}" th:text="${mensagem}"
+        class="mb-6 p-3 bg-emerald-900/40 border border-emerald-700 rounded-lg text-emerald-300">
+    </p>
+
+    <div th:if="${session.tipoUsuario == 'ADMIN'}" class="mb-6">
+        <a th:href="@{/professores/form}"
+            class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow transition">
+            Novo Professor
+        </a>
+    </div>
+
+    <hr class="border-slate-800 mb-6">
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
+
+            <thead class="bg-slate-900 border-b border-slate-800">
+                <tr class="text-xs uppercase tracking-wide text-slate-400">
+                    <th class="px-3 py-2">ID</th>
+                    <th class="px-3 py-2">Nome</th>
+                    <th class="px-3 py-2">Matrícula</th>
+                    <th class="px-3 py-2">Login</th>
+                    <th class="px-3 py-2">Telefone</th>
+                    <th class="px-3 py-2">Coordenador</th>
+                    <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-slate-800">
+
+                <tr th:if="${#lists.isEmpty(professores)}">
+                    <td colspan="7" class="px-4 py-4 text-center text-slate-400">
+                        Nenhum professor cadastrado.
+                    </td>
+                </tr>
+
+                <tr th:each="professor : ${professores}" class="hover:bg-slate-900 transition">
+
+                    <td class="px-3 py-2" th:text="${professor.id}"></td>
+                    <td class="px-3 py-2" th:text="${professor.nome}"></td>
+                    <td class="px-3 py-2" th:text="${professor.matricula}"></td>
+                    <td class="px-3 py-2" th:text="${professor.login}"></td>
+                    <td class="px-3 py-2" th:text="${professor.fone}"></td> 
+                    
+                    <td class="px-3 py-2" th:text="${professor.coordenador ? 'Sim' : 'Não'}"></td>
+
+                    <td th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">
+                        <a th:href="@{/professores/{id}/edit(id=${professor.id})}"
+                           class="text-indigo-400 hover:text-indigo-300 transition mr-3">
+                            Editar
+                        </a>
+
+                        <a th:href="@{/professores/{id}/delete(id=${professor.id})}"
+                           onclick="return confirm('Tem certeza que deseja excluir o professor ' + this.closest('tr').children[1].innerText + '?');"
+                           class="text-red-400 hover:text-red-300 transition">
+                            Excluir
+                        </a>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="mt-6">
+        <a th:href="@{/home}" 
+           class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium transition">
+            Voltar para Home
+        </a>
+    </div>
+
+</body>
+</html>
