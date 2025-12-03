@@ -1,6 +1,7 @@
 package br.edu.ifpb.pweb2.colegiplus.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -15,35 +16,36 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 @RequestMapping("/alunos")
 public class AlunoController {
-    
+
     @Autowired
     private AlunoService alunoService;
-    
+
     private boolean isPermitidoGerenciar(HttpSession session) {
         String tipo = (String) session.getAttribute("tipoUsuario");
-        return "ADMIN".equals(tipo); 
+        return "ADMIN".equals(tipo);
     }
 
-    @GetMapping({"", "/"})
+    @GetMapping({ "", "/" })
     public ModelAndView listarAlunos(ModelAndView modelAndView, HttpSession session) {
         if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home"); 
+            return new ModelAndView("redirect:/home");
         }
         modelAndView.addObject("alunos", alunoService.findAll());
         modelAndView.setViewName("alunos/list");
         return modelAndView;
     }
-    
-    @GetMapping({"/form", "/{id}/edit"})
-    public ModelAndView mostrarFormulario(@PathVariable(required = false) Long id, ModelAndView modelAndView, HttpSession session) {
+
+    @GetMapping({ "/form", "/{id}/edit" })
+    public ModelAndView mostrarFormulario(@PathVariable(required = false) Long id, ModelAndView modelAndView,
+            HttpSession session) {
         if (!isPermitidoGerenciar(session)) {
             return new ModelAndView("redirect:/home");
         }
         Aluno aluno;
         if (id == null) {
-            aluno = new Aluno(); 
+            aluno = new Aluno();
         } else {
-            aluno = alunoService.findById(id); 
+            aluno = alunoService.findById(id);
             if (aluno == null) {
                 return new ModelAndView("redirect:/alunos");
             }
@@ -54,54 +56,71 @@ public class AlunoController {
     }
 
     @PostMapping("/form")
-    public ModelAndView salvarAluno(@Valid Aluno aluno, BindingResult result, 
-                                      ModelAndView modelAndView, RedirectAttributes attr, 
-                                      HttpSession session) {
-        
+    public ModelAndView salvarAluno(@Valid Aluno aluno, BindingResult result,
+            ModelAndView modelAndView, RedirectAttributes attr,
+            HttpSession session) {
+
         if (!isPermitidoGerenciar(session)) {
             return new ModelAndView("redirect:/home");
         }
-        
+
         if (result.hasErrors()) {
             modelAndView.setViewName("alunos/form");
             return modelAndView;
         }
 
-        if (aluno.getId() == null) { 
+        if (aluno.getId() == null) {
             if (alunoService.existsByMatricula(aluno.getMatricula())) {
                 result.rejectValue("matricula", "matricula.exists", "Esta matrícula já está cadastrada.");
             }
             if (alunoService.existsByLogin(aluno.getLogin())) {
                 result.rejectValue("login", "login.exists", "Este login já está em uso.");
             }
-        } else { 
-             if (alunoService.existsByMatriculaAndIdNot(aluno.getMatricula(), aluno.getId())) {
-                 result.rejectValue("matricula", "matricula.exists", "Esta matrícula já está cadastrada para outro aluno.");
-             }
-             if (alunoService.existsByLoginAndIdNot(aluno.getLogin(), aluno.getId())) {
-                 result.rejectValue("login", "login.exists", "Este login já está em uso por outro aluno.");
-             }
+        } else {
+            if (alunoService.existsByMatriculaAndIdNot(aluno.getMatricula(), aluno.getId())) {
+                result.rejectValue("matricula", "matricula.exists",
+                        "Esta matrícula já está cadastrada para outro aluno.");
+            }
+            if (alunoService.existsByLoginAndIdNot(aluno.getLogin(), aluno.getId())) {
+                result.rejectValue("login", "login.exists", "Este login já está em uso por outro aluno.");
+            }
         }
 
         if (result.hasErrors()) {
             modelAndView.setViewName("alunos/form");
             return modelAndView;
         }
-        
+
         alunoService.save(aluno);
         attr.addFlashAttribute("mensagem", "Aluno salvo com sucesso!");
         modelAndView.setViewName("redirect:/alunos/");
         return modelAndView;
     }
-    
+
     @GetMapping("/{id}/delete")
-    public ModelAndView deletarAluno(@PathVariable("id") Long id, ModelAndView modelAndView, RedirectAttributes attr, HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
+    public ModelAndView delete(@PathVariable Long id, ModelAndView mv, RedirectAttributes attr, HttpSession session) {
+
+        String tipo = (String) session.getAttribute("tipoUsuario");
+        if (!"ADMIN".equals(tipo)) {
+            attr.addFlashAttribute("erro", "Você não tem permissão para realizar esta operação.");
+            mv.setViewName("redirect:/alunos");
+            return mv;
         }
-        alunoService.deleteById(id);
-        attr.addFlashAttribute("mensagem", "Aluno excluído com sucesso!");
-        modelAndView.setViewName("redirect:/alunos/");
-        return modelAndView;
+
+        try {
+            alunoService.deleteById(id);
+
+            attr.addFlashAttribute("mensagem", "Aluno removido com sucesso!");
+
+        } catch (DataIntegrityViolationException e) {
+            attr.addFlashAttribute("erro",
+                    "Erro ao excluir: Este aluno possui processos vinculados e não pode ser removido.");
+
+        } catch (Exception e) {
+            attr.addFlashAttribute("erro", "Erro inesperado ao tentar remover o aluno.");
+        }
+
+        mv.setViewName("redirect:/alunos");
+        return mv;
     }
 }

@@ -1,6 +1,7 @@
 package br.edu.ifpb.pweb2.colegiplus.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -98,14 +99,27 @@ public class ProfessorController {
     
     
     @GetMapping("/{id}/delete")
-    public ModelAndView deletarProfessor(@PathVariable("id") Long id, ModelAndView modelAndView, RedirectAttributes attr, HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
+    public ModelAndView delete(@PathVariable Long id, ModelAndView mv, RedirectAttributes attr, HttpSession session) {
+        
+        String tipo = (String) session.getAttribute("tipoUsuario");
+        if (!"ADMIN".equals(tipo)) {
+            attr.addFlashAttribute("erro", "Você não tem permissão para realizar esta operação.");
+            mv.setViewName("redirect:/professores");
+            return mv;
+        }
+
+        try {
+            professorService.deleteById(id);
+            attr.addFlashAttribute("mensagem", "Professor removido com sucesso!");
+            
+        } catch (DataIntegrityViolationException e) {
+            attr.addFlashAttribute("erro", "Erro ao excluir: Este professor possui vínculos (processos, colegiados) e não pode ser removido.");
+            
+        } catch (Exception e) {
+            attr.addFlashAttribute("erro", "Erro inesperado ao tentar remover o professor.");
         }
         
-        professorService.deleteById(id);
-        attr.addFlashAttribute("mensagem", "Professor excluído com sucesso!");
-        modelAndView.setViewName("redirect:/professores/");
-        return modelAndView;
+        mv.setViewName("redirect:/professores");
+        return mv;
     }
 }

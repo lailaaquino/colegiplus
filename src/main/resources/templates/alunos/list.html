@@ -26,6 +26,12 @@
             class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow transition">
             Novo Aluno
         </a>
+
+         <p
+        th:if="${erro}"
+        th:text="${erro}"
+        class="mb-4 p-3 bg-red-900/40  border-red-700 rounded-lg text-red-300"
+      ></p>
     </div>
 
     <hr class="border-slate-800 mb-6">
