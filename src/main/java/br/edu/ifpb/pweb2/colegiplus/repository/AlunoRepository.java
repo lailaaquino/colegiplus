@@ -17,4 +17,8 @@ public interface AlunoRepository extends JpaRepository<Aluno, Long> {
     boolean existsByLogin(String login);
 
     List<Aluno> findByNomeContainingIgnoreCase(String nome);
+
+    boolean existsByMatriculaAndIdNot(String matricula, Long id);
+
+    boolean existsByLoginAndIdNot(String login, Long id);
 }
