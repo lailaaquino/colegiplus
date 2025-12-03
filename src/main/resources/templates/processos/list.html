@@ -1,193 +1,163 @@
 <!DOCTYPE html>
 <html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Colegi+ - Processos Cadastrados</title>
-  </head>
-  <body>
-    <h1>Processos Cadastrados</h1>
-    <hr />
 
-    <!-- Botão para novo processo (apenas ALUNO) -->
-    <div th:if="${session.tipoUsuario == 'ALUNO'}">
-      <form th:action="@{/processos/novo}" method="get">
-        <button type="submit">Cadastrar Novo Processo</button>
-      </form>
-      <br />
-    </div>
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
 
-    <!-- Filtros do ALUNO -->
-    <form
-      th:if="${session.tipoUsuario == 'ALUNO'}"
-      method="get"
-      th:action="@{/processos}"
-    >
-      <label>Status:</label>
-      <select name="status">
-        <option value="">Todos</option>
-        <option value="CRIADO" th:selected="${statusSelecionado == 'CRIADO'}">
-          Criado
-        </option>
-        <option
-          value="DISTRIBUIDO"
-          th:selected="${statusSelecionado == 'DISTRIBUIDO'}"
-        >
-          Distribuído
-        </option>
-        <option
-          value="EM_PAUTA"
-          th:selected="${statusSelecionado == 'EM_PAUTA'}"
-        >
-          Em pauta
-        </option>
-        <option
-          value="DISPONIVEL"
-          th:selected="${statusSelecionado == 'DISPONIVEL'}"
-        >
-          Disponível
-        </option>
-        <option value="JULGADO" th:selected="${statusSelecionado == 'JULGADO'}">
-          Julgado
-        </option>
-      </select>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
 
-      <label>Assunto:</label>
-      <select name="assuntoId">
-        <option value="">Todos</option>
-        <option
-          th:each="a : ${assuntos}"
-          th:value="${a.id}"
-          th:text="${a.nome}"
-          th:selected="${assuntoSelecionado != null and a.id == assuntoSelecionado}"
-        ></option>
-      </select>
+    <th:block th:replace="header :: menu"></th:block>
 
-      <label>Ordenar por data:</label>
-      <select name="ordem">
-        <option value="asc" th:selected="${ordemSelecionada == 'asc'}">
-          Mais antigos primeiro
-        </option>
-        <option value="desc" th:selected="${ordemSelecionada == 'desc'}">
-          Mais recentes primeiro
-        </option>
-      </select>
+    <main class="max-w-5xl mx-auto px-4 py-10">
 
-      <button type="submit">Filtrar</button>
-    </form>
+        <h1 class="text-3xl font-bold tracking-tight mb-2">
+            Processos <span class="text-indigo-400">Cadastrados</span>
+        </h1>
+        <hr class="border-slate-800 mb-6" />
 
-    <!-- Filtros do COORDENADOR -->
-    <form
-      th:if="${session.tipoUsuario == 'COORDENADOR'}"
-      method="get"
-      th:action="@{/processos}"
-      style="margin-top: 1rem"
-    >
-      <label>Status:</label>
-      <select name="status">
-        <option value="">Todos</option>
-        <option value="CRIADO" th:selected="${statusSelecionado == 'CRIADO'}">
-          Criado
-        </option>
-        <option
-          value="DISTRIBUIDO"
-          th:selected="${statusSelecionado == 'DISTRIBUIDO'}"
-        >
-          Distribuído
-        </option>
-        <option
-          value="EM_PAUTA"
-          th:selected="${statusSelecionado == 'EM_PAUTA'}"
-        >
-          Em pauta
-        </option>
-        <option
-          value="DISPONIVEL"
-          th:selected="${statusSelecionado == 'DISPONIVEL'}"
-        >
-          Disponível
-        </option>
-        <option value="JULGADO" th:selected="${statusSelecionado == 'JULGADO'}">
-          Julgado
-        </option>
-      </select>
+        <div th:if="${session.tipoUsuario == 'ALUNO'}" class="mb-6">
+            <form th:action="@{/processos/novo}" method="get">
+                <button type="submit"
+                    class="bg-indigo-500 hover:bg-indigo-400 transition text-white px-4 py-2 rounded-lg text-sm font-medium shadow">
+                    Cadastrar Novo Processo
+                </button>
+            </form>
+        </div>
 
-      <label style="margin-left: 8px;">Aluno interessado:</label>
-      <input
-        type="text"
-        name="nomeAluno"
-        th:value="${nomeAluno}"
-        placeholder="Nome do aluno"
-      />
+        <form th:if="${session.tipoUsuario == 'ALUNO'}"
+              class="mb-6 flex flex-wrap gap-4 items-end text-sm"
+              method="get" th:action="@{/processos}">
 
-      <label style="margin-left: 8px;">Professor relator:</label>
-      <input
-        type="text"
-        name="nomeProfessor"
-        th:value="${nomeProfessor}"
-        placeholder="Nome do professor"
-      />
+            <div>
+                <label class="block text-slate-300 mb-1">Status:</label>
+                <select name="status"
+                        class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:ring-indigo-500 focus:outline-none"
+                        style="color:#000;">
 
-      <button type="submit" style="margin-left: 8px;">Filtrar</button>
-    </form>
+                    <option value="">Todos</option>
+                    <option value="CRIADO" th:selected="${statusSelecionado == 'CRIADO'}">Criado</option>
+                    <option value="DISTRIBUIDO" th:selected="${statusSelecionado == 'DISTRIBUIDO'}">Distribuído</option>
+                    <option value="EM_PAUTA" th:selected="${statusSelecionado == 'EM_PAUTA'}">Em pauta</option>
+                    <option value="DISPONIVEL" th:selected="${statusSelecionado == 'DISPONIVEL'}">Disponível</option>
+                    <option value="JULGADO" th:selected="${statusSelecionado == 'JULGADO'}">Julgado</option>
+                </select>
+            </div>
 
-    <hr />
+            <div>
+                <label class="block text-slate-300 mb-1">Assunto:</label>
+                <select name="assuntoId"
+                        class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:ring-indigo-500 focus:outline-none"
+                        style="color:#000;">
+                    <option value="">Todos</option>
+                    <option th:each="a : ${assuntos}" th:value="${a.id}" th:text="${a.nome}"
+                            th:selected="${assuntoSelecionado != null and a.id == assuntoSelecionado}"></option>
+                </select>
+            </div>
 
-    <table border="1">
-      <thead>
-        <tr>
-          <th>N. do processo</th>
-          <th>Assunto</th>
-          <th>Texto de Requerimento</th>
-          <th>Data de Recepção</th>
-          <th>Status</th>
+            <div>
+                <label class="block text-slate-300 mb-1">Ordenar por data:</label>
+                <select name="ordem"
+                        class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:ring-indigo-500 focus:outline-none"
+                        style="color:#000;">
+                    <option value="asc" th:selected="${ordemSelecionada == 'asc'}">Mais antigos</option>
+                    <option value="desc" th:selected="${ordemSelecionada == 'desc'}">Mais recentes</option>
+                </select>
+            </div>
 
-          <th
-            th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
-          >
-            Relator
-          </th>
+            <button type="submit"
+                    class="bg-slate-800 hover:bg-slate-700 transition px-4 py-2 text-sm rounded-lg shadow border border-slate-700">
+                Filtrar
+            </button>
+        </form>
 
-          <th th:if="${session.tipoUsuario == 'COORDENADOR'}">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:if="${#lists.isEmpty(processos)}">
-          <td colspan="7">Nenhum processo encontrado.</td>
-        </tr>
+        <form th:if="${session.tipoUsuario == 'COORDENADOR'}"
+              class="mb-6 flex flex-wrap gap-4 items-end text-sm"
+              method="get" th:action="@{/processos}">
 
-        <tr th:each="processo : ${processos}">
-          <td th:text="${processo.numero}"></td>
+            <div>
+                <label class="block text-slate-300 mb-1">Status:</label>
+                <select name="status"
+                        class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 focus:ring-indigo-500 focus:outline-none">
+                    <option value="">Todos</option>
+                    <option value="CRIADO" th:selected="${statusSelecionado == 'CRIADO'}">Criado</option>
+                    <option value="DISTRIBUIDO" th:selected="${statusSelecionado == 'DISTRIBUIDO'}">Distribuído</option>
+                    <option value="EM_PAUTA" th:selected="${statusSelecionado == 'EM_PAUTA'}">Em pauta</option>
+                    <option value="DISPONIVEL" th:selected="${statusSelecionado == 'DISPONIVEL'}">Disponível</option>
+                    <option value="JULGADO" th:selected="${statusSelecionado == 'JULGADO'}">Julgado</option>
+                </select>
+            </div>
 
-          <td
-            th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"
-          ></td>
+            <div>
+                <label class="block text-slate-300 mb-1">Aluno interessado:</label>
+                <input type="text" name="nomeAluno" th:value="${nomeAluno}"
+                       class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-500 focus:ring-indigo-500 focus:outline-none"
+                        style="color: #000;">
+            </div>
 
-          <td
-            th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"
-          ></td>
+            <div>
+                <label class="block text-slate-300 mb-1">Professor relator:</label>
+                  <input type="text" name="nomeProfessor" th:value="${nomeProfessor}"
+                        class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-500 focus:ring-indigo-500 focus:outline-none"
+                        style="color: #000;">
+            </div>
 
-          <td
-            th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"
-          ></td>
+            <button type="submit"
+                    class="bg-slate-800 hover:bg-slate-700 transition px-4 py-2 text-sm rounded-lg shadow border border-slate-700">
+                Filtrar
+            </button>
+        </form>
 
-          <td th:text="${processo.status}"></td>
+        <hr class="border-slate-800 mb-6" />
 
-          <td
-            th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
-            th:text="${processo.relator != null ? processo.relator.nome : '—'}"
-          ></td>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
+                <thead class="bg-slate-900 border-b border-slate-800">
+                    <tr class="text-slate-300 text-xs uppercase tracking-wide">
+                        <th class="px-3 py-2">N. do processo</th>
+                        <th class="px-3 py-2">Assunto</th>
+                        <th class="px-3 py-2">Texto de Requerimento</th>
+                        <th class="px-3 py-2">Data de Recepção</th>
+                        <th class="px-3 py-2">Status</th>
+                        <th th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
+                            class="px-3 py-2">Relator</th>
+                        <th th:if="${session.tipoUsuario == 'COORDENADOR'}"
+                            class="px-3 py-2">Ações</th>
+                    </tr>
+                </thead>
 
-          <td th:if="${session.tipoUsuario == 'COORDENADOR'}">
-            <a
-              th:if="${processo.relator == null}"
-              th:href="@{/processos/{id}/distribuir(id=${processo.id})}"
-            >
-              Distribuir
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </body>
+                <tbody class="divide-y divide-slate-800">
+                    <tr th:if="${#lists.isEmpty(processos)}">
+                        <td colspan="7" class="px-4 py-4 text-center text-slate-400">
+                            Nenhum processo encontrado.
+                        </td>
+                    </tr>
+
+                    <tr th:each="processo : ${processos}" class="hover:bg-slate-900 transition">
+                        <td class="px-3 py-2" th:text="${processo.numero}"></td>
+                        <td class="px-3 py-2" th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"></td>
+                        <td class="px-3 py-2" th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"></td>
+                        <td class="px-3 py-2" th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"></td>
+                        <td class="px-3 py-2" th:text="${processo.status}"></td>
+
+                        <td th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
+                            class="px-3 py-2" th:text="${processo.relator != null ? processo.relator.nome : '—'}"></td>
+
+                        <td th:if="${session.tipoUsuario == 'COORDENADOR'}" class="px-3 py-2">
+                            <a th:if="${processo.relator == null}"
+                               th:href="@{/processos/{id}/distribuir(id=${processo.id})}"
+                               class="text-indigo-400 hover:text-indigo-300 transition">
+                                Distribuir
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+</body>
 </html>

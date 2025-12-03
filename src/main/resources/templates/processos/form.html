@@ -1,30 +1,69 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Colegi+ - Cadastro de Processo</title>
+
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
 </head>
-<body>
-    <h1>Cadastro de Processo</h1>
-    <form th:action="@{/processos}" method="post" th:object="${processo}">
-        <input type="hidden" th:field="*{id}" required/>
 
-        <label for="assunto">Assunto:</label>
-        <select th:field="*{assunto}">
-            <option value="">Selecione um Assunto</option> 
-            <option th:each="a : ${assuntos}" 
-                    th:value="${a.id}" 
-                    th:text="${a.nome}">Nome do Assunto</option>
-        </select>
-        <br><br>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
 
-        <label for="Texto">Texto com requerimento:</label>
-        <input type="text" id="textoRequerimento" th:field="*{textoRequerimento}"><br><br>
+    <th:block th:replace="header :: menu"></th:block>
 
-        <hr>
+    <main class="max-w-3xl mx-auto px-4 py-10">
 
-        <button type="submit">Cadastrar Processo</button>
-        <a th:href="@{/processos}">Cancelar</a>
+        <h1 class="text-3xl font-bold tracking-tight mb-4">
+            Cadastro de <span class="text-indigo-400">Processo</span>
+        </h1>
+
+        <form th:action="@{/processos}" method="post" th:object="${processo}"
+              class="space-y-6 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+
+            <input type="hidden" th:field="*{id}" />
+
+            <div>
+                <label for="assunto"
+                       class="block mb-1 text-sm font-medium text-slate-300">
+                    Assunto:
+                </label>
+                <select th:field="*{assunto}"
+                        class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        style="color:#000;">
+                    <option value="">Selecione um Assunto</option>
+                    <option th:each="a : ${assuntos}"
+                            th:value="${a.id}"
+                            th:text="${a.nome}">
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="textoRequerimento"
+                       class="block mb-1 text-sm font-medium text-slate-300">
+                    Texto com requerimento:
+                </label>
+                <input type="text" id="textoRequerimento" th:field="*{textoRequerimento}"
+                       class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                       style="color:#000;">
+            </div>
+
+            <hr class="border-slate-800">
+
+            <div class="flex flex-wrap gap-4">
+                <button type="submit"
+                        class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium">
+                    Cadastrar Processo
+                </button>
+
+                <a th:href="@{/processos}"
+                   class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition inline-flex items-center">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+
+    </main>
 </body>
 </html>

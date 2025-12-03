@@ -1,46 +1,66 @@
 <!DOCTYPE html>
 <html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Distribuir Processo</title>
-  </head>
-  <body>
-    <h1>Distribuir Processo</h1>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colegi+ - Distribuir Processo</title>
 
-    <p>
-      Número: <span th:text="${processo.numero}"></span><br />
-      Aluno:
-      <span
-        th:text="${processo.interessado != null ? processo.interessado.nome : 'N/A'}"
-      ></span
-      ><br />
-      Assunto:
-      <span
-        th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"
-      ></span
-      ><br />
-      Status atual: <span th:text="${processo.status}"></span>
-    </p>
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
 
-    <hr />
-    <form
-      th:action="@{/processos/{id}/distribuir(id=${processo.id})}"
-      method="post"
-    >
-      <label>Professor relator:</label>
-      <select name="professorId" required>
-        <option value="">Selecione um professor</option>
-        <option
-          th:each="prof : ${membros}"
-          th:value="${prof.id}"
-          th:text="${prof.nome}"
-        ></option>
-      </select>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
 
-      <button type="submit">Distribuir</button>
-    </form>
+    <th:block th:replace="header :: menu"></th:block>
 
-    <br />
-    <a th:href="@{/processos}">Voltar</a>
-  </body>
+    <main class="max-w-3xl mx-auto px-4 py-10">
+
+        <h1 class="text-3xl font-bold tracking-tight mb-4">
+            Distribuir <span class="text-indigo-400">Processo</span>
+        </h1>
+
+        <div class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 mb-6 space-y-1 text-sm">
+            <p>Número: <span class="text-indigo-300" th:text="${processo.numero}"></span></p>
+            <p>Aluno:
+                <span class="text-indigo-300"
+                      th:text="${processo.interessado != null ? processo.interessado.nome : 'N/A'}"></span>
+            </p>
+            <p>Assunto:
+                <span class="text-indigo-300"
+                      th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"></span>
+            </p>
+            <p>Status atual:
+                <span class="text-indigo-300" th:text="${processo.status}"></span>
+            </p>
+        </div>
+
+        <form th:action="@{/processos/{id}/distribuir(id=${processo.id})}" method="post"
+              class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 space-y-4">
+
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-300">
+                    Professor relator:
+                </label>
+                <select name="professorId" required
+                        class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full"
+                        style="color:#000;">
+                    <option value="">Selecione um professor</option>
+                    <option th:each="prof : ${membros}" th:value="${prof.id}" th:text="${prof.nome}"></option>
+                </select>
+            </div>
+
+            <div class="flex gap-4">
+                <button type="submit"
+                    class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium">
+                    Distribuir
+                </button>
+
+                <a th:href="@{/processos}"
+                    class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+                    Voltar
+                </a>
+            </div>
+
+        </form>
+    </main>
+</body>
 </html>

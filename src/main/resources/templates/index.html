@@ -1,55 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Colegi+</title>
+
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
   </head>
-  <body>
-    <h1>Welcome to Colegi+</h1>
-    <p>Your platform for managing academic processes.</p>
-    <div th:if="${session.tipoUsuario == null}">
-      <p>Faça Login para continuar.</p>
-      <a th:href="@{/auth}">Ir para Login</a>
-    </div>
 
-    <div th:if="${session.tipoUsuario != null}">
-      <hr />
+  <body class="min-h-screen bg-slate-950 text-slate-100">
 
-      <div th:if="${session.tipoUsuario == 'ALUNO'}">
-        <h3>Área do Aluno</h3>
-        <ul>
-          <li><a th:href="@{/processos/novo}">Abrir Novo Processo</a></li>
-          <li><a th:href="@{/processos}">Consultar meus processos</a></li>
-        </ul>
-      </div>
+    <th:block th:replace="header :: menu"></th:block>
 
-      <div th:if="${session.tipoUsuario == 'COORDENADOR'}">
-        <h3>Área do Coordenador</h3>
-        <ul>
-          <li><a th:href="@{/processos}">Analisar Processos Pendentes</a></li>
-        </ul>
-      </div>
+    <main class="max-w-4xl mx-auto px-4 py-10">
 
-      <div th:if="${session.tipoUsuario == 'ADMIN'}">
-        <h3>Área do Administrador</h3>
-        <ul>
-          <li><a th:href="@{/assuntos/form}">Cadastrar Assuntos</a></li>
-          <li><a th:href="@{/assuntos}">Gerenciar Assuntos</a></li>
-          <li><a th:href="@{/colegiados}">Gerenciar Colegiados</a></li>
-        </ul>
-      </div>
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-8 md:p-8">
 
-      <div th:if="${session.tipoUsuario == 'PROFESSOR'}">
-        <h3>Área do Professor</h3>
-        <ul>
-          <li><a th:href="@{/processos}">Revisar Processos Atribuídos</a></li>
-        </ul>
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div>
+            <h1 class="text-3xl font-bold tracking-tight">
+              Colegi<span class="text-indigo-400">+</span>
+            </h1>
+            <p class="mt-2 text-sm md:text-base text-slate-300">
+              Plataforma para gestão de processos acadêmicos em colegiados.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div th:if="${session.tipoUsuario != null}"
+                 class="inline-flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1 text-xs md:text-sm text-slate-200">
+              <span class="inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span th:text="${session.tipoUsuario}"></span>
+            </div>
+
+            <a th:if="${session.tipoUsuario == null}"
+               th:href="@{/auth}"
+               class="inline-flex items-center justify-center rounded-full bg-indigo-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-400 transition">
+              Entrar
+            </a>
+          </div>
+        </header>
+
+        <section th:if="${session.tipoUsuario == null}" class="space-y-4">
+          <p class="text-sm md:text-base text-slate-300">
+            Faça login para acessar as funcionalidades do sistema.
+          </p>
+          <a th:href="@{/auth}"
+             class="inline-flex items-center justify-center rounded-full bg-indigo-500 px-5 py-2.5 text-sm font-medium text-white shadow hover:bg-indigo-400 transition">
+            Ir para Login
+          </a>
+        </section>
+
+        <section th:if="${session.tipoUsuario != null}" class="space-y-6">
+
+          <div class="h-px w-full bg-slate-800 my-3"></div>
+
+          <div th:if="${session.tipoUsuario == 'ALUNO'}"
+               class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <h3 class="text-lg font-semibold mb-2">Área do Aluno</h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Abra novos processos e acompanhe o andamento das suas solicitações.
+            </p>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <a th:href="@{/processos/novo}"
+                   class="text-indigo-300 hover:text-indigo-200 flex items-center gap-2">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+                  Abrir novo processo
+                </a>
+              </li>
+              <li>
+                <a th:href="@{/processos}"
+                   class="text-indigo-300 hover:text-indigo-200 flex items-center gap-2">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+                  Consultar meus processos
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div th:if="${session.tipoUsuario == 'COORDENADOR'}"
+               class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <h3 class="text-lg font-semibold mb-2">Área do Coordenador</h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Gerencie os processos e organize a pauta do colegiado.
+            </p>
+            <a th:href="@{/processos}"
+               class="text-indigo-300 hover:text-indigo-200 flex items-center gap-2">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+              Analisar processos pendentes
+            </a>
+          </div>
+
+          <div th:if="${session.tipoUsuario == 'ADMIN'}"
+               class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <h3 class="text-lg font-semibold mb-2">Área do Administrador</h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Gerencie cadastros e configurações do sistema.
+            </p>
+            <ul class="space-y-2 text-sm">
+              <li>
+                <a th:href="@{/assuntos/form}" class="flex items-center gap-2 text-indigo-300 hover:text-indigo-200">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+                  Cadastrar assuntos
+                </a>
+              </li>
+              <li>
+                <a th:href="@{/assuntos}" class="flex items-center gap-2 text-indigo-300 hover:text-indigo-200">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+                  Gerenciar assuntos
+                </a>
+              </li>
+              <li>
+                <a th:href="@{/colegiados}" class="flex items-center gap-2 text-indigo-300 hover:text-indigo-200">
+                  <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+                  Gerenciar colegiados
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div th:if="${session.tipoUsuario == 'PROFESSOR'}"
+               class="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
+            <h3 class="text-lg font-semibold mb-2">Área do Professor</h3>
+            <p class="text-sm text-slate-400 mb-4">
+              Consulte e registre votos nos processos atribuídos.
+            </p>
+            <a th:href="@{/processos}"
+               class="text-indigo-300 hover:text-indigo-200 flex items-center gap-2">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+              Revisar processos atribuídos
+            </a>
+          </div>
+
+          <div class="h-px w-full bg-slate-800 my-3"></div>
+
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-xs text-slate-500">
+              Sistema experimental para disciplina de PWEB2 – IFPB.
+            </p>
+
+            <a th:href="@{/auth/logout}"
+               class="inline-flex items-center justify-center rounded-full border border-slate-700
+                      px-4 py-2 text-xs md:text-sm font-medium text-slate-200 hover:bg-slate-800 transition"
+               th:if="${session.tipoUsuario != null}">
+              Sair
+            </a>
+          </div>
+
+        </section>
       </div>
-      <hr />
-      <div>
-        <a th:href="@{/auth/logout}">Sair</a>
-      </div>
-    </div>
+    </main>
   </body>
 </html>

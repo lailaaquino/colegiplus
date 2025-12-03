@@ -4,56 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Colegi+ - Assuntos</title>
+
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
 </head>
-<body>
 
-    <h1>Assuntos de Processos</h1>
-    <hr/>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+    <th:block th:replace="header :: menu"></th:block>
 
-    <p th:if="${mensagem}" th:text="${mensagem}" style="color: green;"></p>
+    <h1 class="text-3xl font-bold tracking-tight mb-4">Assuntos de <span class="text-indigo-400">Processos</span></h1>
 
-    <div th:if="${session.tipoUsuario == 'ADMIN'}">
+    <hr class="border-slate-800 mb-6">
+
+    <p th:if="${mensagem}" th:text="${mensagem}"
+       class="mb-4 p-3 bg-emerald-900/40 border border-emerald-700 rounded-lg text-emerald-300">
+    </p>
+
+    <div th:if="${session.tipoUsuario == 'ADMIN'}" class="mb-6">
         <form th:action="@{/assuntos/form}" method="get">
-            <button type="submit">Cadastrar Novo Assunto</button>
+            <button type="submit"
+                class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow">
+                Cadastrar Novo Assunto
+            </button>
         </form>
     </div>
 
-    <br/>
-    <hr/>
+    <hr class="border-slate-800 mb-6">
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome do Assunto</th>
+    <div class="overflow-x-auto">
+        <table class="min-w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
 
-                <!-- ações para admin -->
-                <th th:if="${session.tipoUsuario == 'ADMIN'}">Ações</th>
-            </tr>
-        </thead>
+            <thead class="bg-slate-900 border-b border-slate-800">
+                <tr class="text-xs uppercase tracking-wide text-slate-400">
+                    <th class="px-3 py-2">ID</th>
+                    <th class="px-3 py-2">Nome do Assunto</th>
+                    <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">Ações</th>
+                </tr>
+            </thead>
 
-        <tbody>
+            <tbody class="divide-y divide-slate-800">
 
-            <tr th:if="${#lists.isEmpty(assuntos)}">
-                <td colspan="3">Nenhum assunto encontrado.</td>
-            </tr>
+                <tr th:if="${#lists.isEmpty(assuntos)}">
+                    <td colspan="3" class="px-4 py-4 text-center text-slate-400">
+                        Nenhum assunto encontrado.
+                    </td>
+                </tr>
 
-            <tr th:each="a : ${assuntos}">
-                <td th:text="${a.id}"></td>
-                <td th:text="${a.nome}"></td>
+                <tr th:each="a : ${assuntos}" class="hover:bg-slate-900 transition">
 
-                <td th:if="${session.tipoUsuario == 'ADMIN'}">
-                    <a th:href="@{'/assuntos/' + ${a.id}}">Editar</a>
-                    &nbsp;|&nbsp;
-                    <a th:href="@{'/assuntos/' + ${a.id} + '/delete'}"
-                       onclick="return confirm('Tem certeza que deseja excluir este assunto?');">
-                        Excluir
-                    </a>
-                </td>
-            </tr>
+                    <td class="px-3 py-2" th:text="${a.id}"></td>
+                    <td class="px-3 py-2" th:text="${a.nome}"></td>
 
-        </tbody>
-    </table>
+                    <td th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 flex gap-4">
+
+                        <a th:href="@{'/assuntos/' + ${a.id}}"
+                           class="text-indigo-400 hover:text-indigo-300 transition">
+                            Editar
+                        </a>
+
+                        <a th:href="@{'/assuntos/' + ${a.id} + '/delete'}"
+                           onclick="return confirm('Tem certeza que deseja excluir este assunto?');"
+                           class="text-red-400 hover:text-red-300 transition">
+                            Excluir
+                        </a>
+
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
 
 </body>
 </html>

@@ -1,58 +1,73 @@
 <!DOCTYPE html>
 <html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title th:text="${colegiado.id == null} ? 'Cadastrar Novo Colegiado' : 'Editar Colegiado'"></title>
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
 </head>
-<body>
-    <h1 th:text="${colegiado.id == null} ? 'Cadastrar Novo Colegiado' : 'Editar Colegiado'"></h1>
-    <hr/>
 
-    <form th:action="@{/colegiados}" th:object="${colegiado}" method="post">
-        
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+    <th:block th:replace="header :: menu"></th:block>
+
+    <h1 class="text-3xl font-bold tracking-tight mb-4"
+        th:text="${colegiado.id == null} ? 'Cadastrar Novo Colegiado' : 'Editar Colegiado'"></h1>
+
+    <hr class="border-slate-800 mb-6">
+
+    <form th:action="@{/colegiados}" th:object="${colegiado}" method="post"
+        class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 max-w-2xl space-y-6">
+
         <input type="hidden" th:field="*{id}" />
 
-        <fieldset>
-            <legend>Dados do Colegiado</legend>
-            
-            <div>
-                <label for="nome">Nome do Colegiado:</label>
-                <input type="text" id="nome" th:field="*{nome}" required/>
-            </div>
-            <br/>
+        <fieldset class="space-y-6">
+            <legend class="text-lg font-semibold text-indigo-400">Dados do Colegiado</legend>
 
             <div>
-                <label for="coordenador">Coordenador (Professor):</label>
-                <select id="coordenador" th:field="*{coordenador}" required>
-                    <option value="">-- Selecione o Coordenador --</option> 
-                    <option th:each="professor : ${todosProfessores}"
-                            th:value="${professor.id}"
-                            th:text="${professor.nome}">
-                        Nome do Professor
-                    </option>
-                </select>
+                <label class="block mb-1 text-sm text-slate-300">Nome do Colegiado:</label>
+                <input type="text" id="nome" th:field="*{nome}" required
+                    class="bg-white text-black border border-slate-700 px-3 py-2 rounded-lg w-full"
+                    style="color:#000;">
             </div>
-            <br/>
 
             <div>
-                <label for="membros">Membros (Múltipla Seleção):</label>
-                <select id="membros" th:field="*{membros}" multiple="multiple" size="10">
-                    <option th:each="professor : ${todosProfessores}"
-                            th:value="${professor.id}"
-                            th:text="${professor.nome}">
-                        Nome do Professor
-                    </option>
+                <label class="block mb-1 text-sm text-slate-300">Coordenador (Professor):</label>
+                <select id="coordenador" th:field="*{coordenador}" required
+                    class="bg-white text-black border border-slate-700 px-3 py-2 rounded-lg w-full"
+                    style="color:#000;">
+                    <option value="">-- Selecione o Coordenador --</option>
+                    <option th:each="professor : ${todosProfessores}" th:value="${professor.id}"
+                        th:text="${professor.nome}"></option>
                 </select>
             </div>
-            
+
+            <div>
+                <label class="block mb-1 text-sm text-slate-300">Membros (múltipla seleção):</label>
+                <select id="membros" th:field="*{membros}" multiple="multiple" size="10"
+                    class="bg-white text-black border border-slate-700 px-3 py-2 rounded-lg w-full"
+                    style="color:#000;">
+                    <option th:each="professor : ${todosProfessores}" th:value="${professor.id}"
+                        th:text="${professor.nome}"></option>
+                </select>
+            </div>
         </fieldset>
-        <br/>
 
-        <button type="submit" th:text="${colegiado.id == null} ? 'Cadastrar' : 'Atualizar'">Salvar Colegiado</button>
-        
-        <a th:href="@{/colegiados}">
-            <button type="button">Cancelar e Voltar</button>
-        </a>
+        <hr class="border-slate-800">
+
+        <div class="flex gap-4">
+            <button type="submit"
+                class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium"
+                th:text="${colegiado.id == null} ? 'Cadastrar' : 'Atualizar'">
+            </button>
+
+            <a th:href="@{/colegiados}"
+                class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+                Cancelar e Voltar
+            </a>
+        </div>
+
     </form>
+
 </body>
+
 </html>

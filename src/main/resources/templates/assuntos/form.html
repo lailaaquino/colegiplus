@@ -4,22 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Colegi+ - Cadastro de Assunto</title>
+
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
 </head>
-<body>
 
-    <h1 th:text="${assunto.id == null ? 'Cadastrar Assunto' : 'Editar Assunto'}"></h1>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+    <th:block th:replace="header :: menu"></th:block>
 
-    <form th:action="@{/assuntos}" method="post" th:object="${assunto}">
+    <h1 class="text-3xl font-bold tracking-tight mb-4"
+        th:text="${assunto.id == null ? 'Cadastrar Assunto' : 'Editar Assunto'}"></h1>
+
+    <hr class="border-slate-800 mb-6">
+
+    <form th:action="@{/assuntos}" method="post" th:object="${assunto}"
+          class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 max-w-xl space-y-6">
+
         <input type="hidden" th:field="*{id}"/>
 
-        <label for="nome">Nome do Assunto:</label>
-        <input type="text" id="nome" th:field="*{nome}" placeholder="Digite o nome do assunto" required>
-        <br><br>
+        <div>
+            <label class="block mb-1 text-sm text-slate-300">Nome do Assunto:</label>
+            <input type="text" th:field="*{nome}" placeholder="Digite o nome do assunto" required
+                   class="bg-white text-black border border-slate-700 rounded-lg px-3 py-2 w-full"
+                    style="color:#000;">
+        </div>
 
-        <hr>
+        <hr class="border-slate-800">
 
-        <button type="submit">Salvar</button>
-        <a th:href="@{/assuntos}">Cancelar</a>
+        <div class="flex gap-4">
+            <button type="submit"
+                class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium">
+                Salvar
+            </button>
+
+            <a th:href="@{/assuntos}"
+                class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+                Cancelar
+            </a>
+        </div>
+
     </form>
 
 </body>
