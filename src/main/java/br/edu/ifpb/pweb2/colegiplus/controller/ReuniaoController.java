@@ -18,6 +18,9 @@ import br.edu.ifpb.pweb2.colegiplus.model.StatusProcesso;
 import br.edu.ifpb.pweb2.colegiplus.model.StatusReuniao;
 import br.edu.ifpb.pweb2.colegiplus.repository.ColegiadoRepository;
 import br.edu.ifpb.pweb2.colegiplus.repository.ProcessoRepository;
+import br.edu.ifpb.pweb2.colegiplus.repository.ProfessorRepository;
+import br.edu.ifpb.pweb2.colegiplus.repository.ReuniaoRepository;
+import br.edu.ifpb.pweb2.colegiplus.service.ReuniaoService;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -26,14 +29,24 @@ public class ReuniaoController {
 
     @Autowired
     private ProcessoRepository processoRepository;
+
     @Autowired
     private ColegiadoRepository colegiadoRepository;
+
     @Autowired
-    private br.edu.ifpb.pweb2.colegiplus.repository.ReuniaoRepository reuniaoRepository;
+    private ReuniaoRepository reuniaoRepository;
+
+    @Autowired
+    private ProfessorRepository professorRepository;
+
+    @Autowired
+    private ReuniaoService reuniaoService;
 
     @GetMapping("/nova")
     public ModelAndView formNovaSessao(HttpSession session) {
         Professor coordenador = (Professor) session.getAttribute("usuario");
+        if (coordenador == null) return new ModelAndView("redirect:/auth");
+
         Colegiado colegiado = colegiadoRepository.findByCoordenador(coordenador);
 
         ModelAndView mv = new ModelAndView("reunioes/form");
@@ -47,56 +60,53 @@ public class ReuniaoController {
     public ModelAndView listar(@RequestParam(value = "status", required = false) String status, HttpSession session) {
         ModelAndView mv = new ModelAndView("reunioes/list");
         Professor professor = (Professor) session.getAttribute("usuario");
+        if (professor == null) return new ModelAndView("redirect:/auth");
 
-        if (professor == null) {
-            return new ModelAndView("redirect:/auth");
-        }
-
-        Colegiado colegiado = colegiadoRepository.findByCoordenador(professor);
-        if (colegiado == null) {
-            List<Colegiado> todos = colegiadoRepository.findAll();
-            for (Colegiado c : todos) {
-                if (c.getMembros() != null && c.getMembros().stream().anyMatch(m -> m.getId().equals(professor.getId()))) {
-                    colegiado = c;
-                    break;
-                }
-            }
-        }
-
-        if (colegiado == null) {
-            mv.addObject("reunioes", new ArrayList<Reuniao>());
-            return mv;
-        }
-
-        List<Reuniao> reunioes;
         StatusReuniao statusEnum = null;
-
-        if (status != null && !status.isBlank() && !status.equals("null")) {
+        if (status != null && !status.isBlank() && !"null".equals(status)) {
             try {
                 statusEnum = StatusReuniao.valueOf(status);
-                reunioes = reuniaoRepository.findByColegiadoAndStatus(colegiado, statusEnum);
-            } catch (IllegalArgumentException e) {
-                reunioes = reuniaoRepository.findByColegiado(colegiado);
+            } catch (IllegalArgumentException ignored) {
+                statusEnum = null;
             }
-        } else {
-            reunioes = reuniaoRepository.findByColegiado(colegiado);
         }
 
-        mv.addObject("reunioes", reunioes);
+        List<Reuniao> reunioes = reuniaoService.listarReunioesDoProfessor(professor.getId(), statusEnum);
+
+        mv.addObject("reunioes", reunioes != null ? reunioes : new ArrayList<Reuniao>());
         mv.addObject("statusSelecionado", statusEnum);
         return mv;
     }
 
     @PostMapping
-    public String salvarSessao(Reuniao reuniao, @RequestParam(required = false) List<Long> processosIds, HttpSession session) {
+    public String salvarSessao(Reuniao reuniao,
+                              @RequestParam(required = false) List<Long> processosIds,
+                              @RequestParam(required = false) List<Long> participantesIds,
+                              HttpSession session) {
         Professor coordenador = (Professor) session.getAttribute("usuario");
+        if (coordenador == null) return "redirect:/auth";
+
         Colegiado colegiado = colegiadoRepository.findByCoordenador(coordenador);
 
         reuniao.setColegiado(colegiado);
-        reuniao.setStatus(StatusReuniao.PROGRAMADA); 
+        reuniao.setStatus(StatusReuniao.PROGRAMADA);
 
-        if (processosIds != null) {
+        if (processosIds != null && !processosIds.isEmpty()) {
             reuniao.setProcessos(processoRepository.findAllById(processosIds));
+        }
+
+        if (participantesIds != null && !participantesIds.isEmpty()) {
+            List<Professor> participantes = professorRepository.findAllById(participantesIds);
+
+            List<Long> membrosIds = colegiado.getMembros().stream().map(Professor::getId).toList();
+            boolean temFora = participantes.stream().anyMatch(p -> !membrosIds.contains(p.getId()));
+            if (temFora) {
+                throw new IllegalArgumentException("Participante não pertence ao colegiado.");
+            }
+
+            reuniao.setParticipantes(participantes);
+        } else {
+            reuniao.setParticipantes(colegiado.getMembros());
         }
 
         reuniaoRepository.save(reuniao);
