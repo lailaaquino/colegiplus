@@ -44,6 +44,15 @@ public class Reuniao implements Serializable {
     @JoinColumn(name = "colegiado_id")
     private Colegiado colegiado;
 
+    @ManyToMany
+    @JoinTable(
+    name = "reuniao_participantes",
+    joinColumns = @JoinColumn(name = "reuniao_id"),
+    inverseJoinColumns = @JoinColumn(name = "professor_id")
+    )
+    private List<Professor> participantes;
+        
+
     @OneToMany(mappedBy = "reuniao")
     private List<Voto> votos;
 
