@@ -23,16 +23,14 @@
         <input type="hidden" th:field="*{id}" />
 
         <div>
-          <label
-            for="data"
-            class="block mb-2 text-sm font-medium text-slate-300"
-          >
+          <label for="data" class="block mb-2 text-sm font-medium text-slate-300">
             Data e Hora da Sessão:
           </label>
           <input
             type="datetime-local"
             id="data"
             th:field="*{data}"
+            style="color: black!important;"
             required
             class="bg-white text-slate-950 border border-slate-700 px-4 py-2 rounded-lg w-full md:w-1/2 focus:ring-2 focus:ring-indigo-500 outline-none"
           />
@@ -42,9 +40,8 @@
           <label class="block mb-3 text-sm font-medium text-indigo-300">
             Definir Pauta (Processos Distribuídos):
           </label>
-          <div
-            class="space-y-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50"
-          >
+
+          <div class="space-y-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50">
             <div
               th:each="p : ${processos}"
               class="flex items-center space-x-3 p-2 hover:bg-slate-800 rounded transition"
@@ -60,6 +57,7 @@
                 th:text="|${p.numero} - ${p.interessado?.nome} (${p.assunto?.nome})|"
               ></label>
             </div>
+
             <p
               th:if="${#lists.isEmpty(processos)}"
               class="text-slate-500 text-sm p-2 text-center italic"
@@ -73,21 +71,21 @@
           <label class="block mb-3 text-sm font-medium text-indigo-300">
             Membros Participantes:
           </label>
-          <div
-            class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50"
-          >
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50">
             <div
               th:each="m : ${membros}"
               class="flex items-center space-x-3 p-2 hover:bg-slate-800 rounded transition"
             >
               <input
                 type="checkbox"
-                name="membrosIds"
+                name="participantesIds"
                 th:value="${m.id}"
                 class="w-4 h-4 text-indigo-600 bg-slate-700 border-slate-600 rounded"
               />
               <label class="text-sm text-slate-300" th:text="${m.nome}"></label>
             </div>
+
             <p
               th:if="${#lists.isEmpty(membros)}"
               class="text-slate-500 text-sm p-2 text-center italic"
@@ -104,6 +102,7 @@
           >
             Agendar Reunião
           </button>
+
           <a
             th:href="@{/reunioes}"
             class="px-8 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700"
