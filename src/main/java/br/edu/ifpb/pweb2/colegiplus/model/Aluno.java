@@ -3,6 +3,7 @@ package br.edu.ifpb.pweb2.colegiplus.model;
 import java.io.Serializable;
 import java.util.List;
 
+import br.edu.ifpb.pweb2.colegiplus.validator.MatriculaValida;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +30,8 @@ public class Aluno implements Serializable {
     @NotBlank private String nome;
     private String telefone;
 
+    @NotBlank(message = "A matrícula não pode estar vazia!")
+    @MatriculaValida 
     @Column(unique = true, nullable = false)
     private String matricula;
 
