@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import br.edu.ifpb.pweb2.colegiplus.model.Colegiado;
 import br.edu.ifpb.pweb2.colegiplus.model.Processo;
 import br.edu.ifpb.pweb2.colegiplus.model.Reuniao;
 import br.edu.ifpb.pweb2.colegiplus.model.StatusProcesso;
@@ -36,11 +35,10 @@ public class ReuniaoService {
         }
     }
 
-    public List<Reuniao> listarPorColegiado(Colegiado colegiado) {
-        return reuniaoRepository.findByColegiado(colegiado);
+    public List<Reuniao> listarReunioesDoProfessor(Long professorId, StatusReuniao status) {
+    if (status != null) {
+        return reuniaoRepository.findVisiveisParaProfessorAndStatus(professorId, status);
     }
-
-    public List<Reuniao> listarPorColegiadoEStatus(Colegiado colegiado, StatusReuniao status) {
-        return reuniaoRepository.findByColegiadoAndStatus(colegiado, status);
-    }
+    return reuniaoRepository.findVisiveisParaProfessor(professorId);
+}
 }
