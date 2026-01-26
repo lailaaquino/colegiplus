@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.Processo;
@@ -39,16 +40,45 @@ public class ProcessoService implements Service<Processo, Long> {
 
 
     @Transactional
-    public Processo saveForAluno(Processo p, Aluno alunoInteressado) {
+    public Processo saveForAluno(Processo p, Aluno alunoInteressado, MultipartFile requerimentoFile) {
+
+        boolean jaDistribuido =
+            p.getDataDistribuicao() != null ||
+            p.getRelator() != null ||
+            (p.getStatus() != null && p.getStatus() != StatusProcesso.CRIADO);
+
+        if (requerimentoFile != null && !requerimentoFile.isEmpty() && jaDistribuido) {
+            throw new RuntimeException("Não é permitido enviar requerimento após a distribuição.");
+        }
+
         if (p.getId() == null) {
             p.setNumero(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
             p.setInteressado(alunoInteressado);
             p.setStatus(StatusProcesso.CRIADO);
             p.setDataRecepcao(Date.from(Instant.now()));
         }
+
+        if (requerimentoFile != null && !requerimentoFile.isEmpty()) {
+            validarPdf(requerimentoFile);
+
+            try {
+                p.setRequerimentoNome(requerimentoFile.getOriginalFilename());
+                p.setRequerimentoContentType(requerimentoFile.getContentType());
+                p.setRequerimentoPdf(requerimentoFile.getBytes());
+            } catch (Exception e) {
+                throw new RuntimeException("Falha ao ler o PDF enviado.");
+            }
+        }
+
         return processoRepository.save(p);
     }
 
+    private void validarPdf(MultipartFile f) {
+        String ct = f.getContentType();
+        if (ct == null || !ct.equalsIgnoreCase("application/pdf")) {
+            throw new RuntimeException("Arquivo inválido. Envie um PDF.");
+        }
+    }
 
     public List<Processo> filtrarProcessosDoAluno(
             Aluno aluno,

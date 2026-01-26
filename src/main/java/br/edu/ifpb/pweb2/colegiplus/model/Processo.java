@@ -68,4 +68,14 @@ public class Processo implements Serializable {
     @Column(length = 1000)
     private String textoRequerimento;
 
+    @Column(name="requerimento_nome")
+    private String requerimentoNome;
+
+    @Column(name="requerimento_content_type")
+    private String requerimentoContentType;
+
+    @Lob
+    @Column(name="requerimento_pdf")
+    private byte[] requerimentoPdf;
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.Assunto;
@@ -14,6 +15,7 @@ import br.edu.ifpb.pweb2.colegiplus.model.StatusProcesso;
 @Repository
 public interface ProcessoRepository extends JpaRepository<Processo, Long> {
 
+    @Transactional(readOnly = true)
     List<Processo> findByInteressado(Aluno interessado);
 
     List<Processo> findByInteressadoAndAssunto(Aluno interessado, Assunto assunto);

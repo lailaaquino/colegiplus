@@ -19,50 +19,55 @@
         </h1>
 
         <form th:action="@{/processos}" method="post" th:object="${processo}"
-              class="space-y-6 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
+            enctype="multipart/form-data"
+            class="space-y-6 bg-slate-900/40 border border-slate-800 rounded-xl p-6">
 
-            <input type="hidden" th:field="*{id}" />
+        <input type="hidden" th:field="*{id}" />
 
-            <div>
-                <label for="assunto"
-                       class="block mb-1 text-sm font-medium text-slate-300">
-                    Assunto:
-                </label>
-                <select th:field="*{assunto}"
-                        class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        style="color:#000;">
-                    <option value="">Selecione um Assunto</option>
-                    <option th:each="a : ${assuntos}"
-                            th:value="${a.id}"
-                            th:text="${a.nome}">
-                    </option>
-                </select>
-            </div>
+        <div>
+            <label class="block mb-1 text-sm font-medium text-slate-300">Assunto:</label>
+            <select th:field="*{assunto}"
+                    class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    style="color: black;">
+                
+                <option th:value="${null}">Selecione um Assunto</option>
 
-            <div>
-                <label for="textoRequerimento"
-                       class="block mb-1 text-sm font-medium text-slate-300">
-                    Texto com requerimento:
-                </label>
-                <input type="text" id="textoRequerimento" th:field="*{textoRequerimento}"
-                       class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                       style="color:#000;">
-            </div>
+                <option th:each="a : ${assuntos}"
+                        th:value="${a.id}"
+                        th:text="${a.nome}">
+                </option>
+            </select>
+        </div>
 
-            <hr class="border-slate-800">
+        <div>
+            <label class="block mb-1 text-sm font-medium text-slate-300">Texto com requerimento:</label>
+            <input type="text" th:field="*{textoRequerimento}"
+                class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full"
+                style="color: black;">
+        </div>
 
-            <div class="flex flex-wrap gap-4">
-                <button type="submit"
-                        class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium">
-                    Cadastrar Processo
-                </button>
+        <div>
+            <label class="block mb-1 text-sm font-medium text-slate-300">Requerimento (PDF):</label>
+            <input type="file" name="requerimentoFile" accept="application/pdf"
+                class="block w-full text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0
+                        file:bg-indigo-500 file:px-4 file:py-2 file:text-white hover:file:bg-indigo-400"
+                style="color: black;">
+            <p class="text-xs text-slate-400 mt-1">Envie um PDF. Só é permitido antes da distribuição.</p>
+        </div>
 
-                <a th:href="@{/processos}"
-                   class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition inline-flex items-center">
-                    Cancelar
-                </a>
-            </div>
+        <div class="flex flex-wrap gap-4">
+            <button type="submit"
+                    class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium">
+            Cadastrar Processo
+            </button>
+
+            <a th:href="@{/processos}"
+            class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition inline-flex items-center">
+            Cancelar
+            </a>
+        </div>
         </form>
+
 
     </main>
 </body>

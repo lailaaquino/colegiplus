@@ -10,7 +10,7 @@
 
 <body class="bg-slate-950 text-slate-100 min-h-screen">
 
-    <th:block th:replace="header :: menu"></th:block>
+    <th:block th:replace="~{header :: menu}"></th:block>
 
     <main class="max-w-5xl mx-auto px-4 py-10">
 
@@ -121,6 +121,7 @@
                         <th class="px-3 py-2">N. do processo</th>
                         <th class="px-3 py-2">Assunto</th>
                         <th class="px-3 py-2">Texto de Requerimento</th>
+                        <th class="px-3 py-2">Requerimento</th>
                         <th class="px-3 py-2">Data de Recepção</th>
                         <th class="px-3 py-2">Status</th>
                         <th th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
@@ -141,6 +142,19 @@
                         <td class="px-3 py-2" th:text="${processo.numero}"></td>
                         <td class="px-3 py-2" th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"></td>
                         <td class="px-3 py-2" th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"></td>
+                        <td class="px-3 py-2">
+                            <a th:if="${processo.requerimentoPdf != null}"
+                                th:href="@{/processos/{id}/requerimento(id=${processo.id})}"
+                                class="text-indigo-400 hover:text-indigo-300 font-medium">
+                                Baixar PDF
+                            </a>
+
+                            <span th:if="${processo.requerimentoPdf == null}"
+                                    class="text-slate-500 text-sm">
+                                —
+                            </span>
+                        </td>
+
                         <td class="px-3 py-2" th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"></td>
                         <td class="px-3 py-2" th:text="${processo.status}"></td>
 

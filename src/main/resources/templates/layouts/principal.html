@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="content(body, pageTitle)">
+
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <th:block th:replace="~{fragments/cabecalho :: menu}"></th:block>
+
+  <main class="max-w-5xl mx-auto px-4 py-10">
+    <th:block th:replace="${body}"></th:block>
+  </main>
+</body>
+</html>

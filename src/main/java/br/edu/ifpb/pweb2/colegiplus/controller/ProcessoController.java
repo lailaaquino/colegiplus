@@ -3,12 +3,16 @@ package br.edu.ifpb.pweb2.colegiplus.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
@@ -101,13 +105,17 @@ public class ProcessoController {
     }
 
     @PostMapping
-    public String salvar(Processo processo, HttpSession session) {
+    public String salvar(
+        Processo processo,
+        @RequestParam(value="requerimentoFile", required=false) MultipartFile requerimentoFile,
+        HttpSession session
+    ) {
         String tipo = (String) session.getAttribute("tipoUsuario");
-        if (!"ALUNO".equals(tipo)) {
-            return "redirect:/processos";
-        }
+        if (!"ALUNO".equals(tipo)) return "redirect:/processos";
+
         Aluno aluno = (Aluno) session.getAttribute("usuario");
-        processoService.saveForAluno(processo, aluno);
+        processoService.saveForAluno(processo, aluno, requerimentoFile);
+
         return "redirect:/processos";
     }
 
@@ -149,6 +157,26 @@ public class ProcessoController {
         processoService.distribuirProcesso(id, relator);
     }
     return "redirect:/processos";
-        }  
+    }  
+
+    @GetMapping("/{id}/requerimento")
+    public ResponseEntity<byte[]> baixarRequerimento(
+            @PathVariable Long id,
+            HttpSession session) {
+
+        Processo processo = processoService.findById(id);
+
+        if (processo.getRequerimentoPdf() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + processo.getRequerimentoNome() + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(processo.getRequerimentoPdf());
     }
+
+    
+}
     
