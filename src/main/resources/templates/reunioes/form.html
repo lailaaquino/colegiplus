@@ -26,8 +26,9 @@
           <label
             for="data"
             class="block mb-2 text-sm font-medium text-slate-300"
-            >Data e Hora da Sessão:</label
           >
+            Data e Hora da Sessão:
+          </label>
           <input
             type="datetime-local"
             id="data"
@@ -38,22 +39,26 @@
         </div>
 
         <div>
-          <label class="block mb-3 text-sm font-medium text-indigo-300"
-            >Definir Pauta (Processos Distribuídos):</label
-          >
+          <label class="block mb-3 text-sm font-medium text-indigo-300">
+            Definir Pauta (Processos Distribuídos):
+          </label>
           <div
             class="space-y-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50"
           >
-            <div th:each="p : ${processos}">
-              <input type="checkbox" name="processosIds" th:value="${p.id}" />
+            <div
+              th:each="p : ${processos}"
+              class="flex items-center space-x-3 p-2 hover:bg-slate-800 rounded transition"
+            >
+              <input
+                type="checkbox"
+                name="processosIds"
+                th:value="${p.id}"
+                class="w-4 h-4 text-indigo-600 bg-slate-700 border-slate-600 rounded"
+              />
               <label
+                class="text-sm text-slate-300"
                 th:text="|${p.numero} - ${p.interessado?.nome} (${p.assunto?.nome})|"
               ></label>
-            </div>
-
-            <div th:each="m : ${membros}">
-              <input type="checkbox" name="membrosIds" th:value="${m.id}" />
-              <label th:text="${m?.nome ?: 'Professor sem nome'}"></label>
             </div>
             <p
               th:if="${#lists.isEmpty(processos)}"
@@ -65,9 +70,9 @@
         </div>
 
         <div>
-          <label class="block mb-3 text-sm font-medium text-indigo-300"
-            >Membros Participantes:</label
-          >
+          <label class="block mb-3 text-sm font-medium text-indigo-300">
+            Membros Participantes:
+          </label>
           <div
             class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50"
           >

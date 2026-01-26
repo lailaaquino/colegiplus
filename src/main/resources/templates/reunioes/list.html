@@ -73,12 +73,14 @@
         class="overflow-x-auto bg-slate-900/40 rounded-xl border border-slate-800 shadow-2xl"
       >
         <table class="w-full text-sm text-left">
-          <thead class="bg-slate-900/80 border-b border-slate-800">
-            <tr class="text-slate-400 text-xs uppercase tracking-widest">
-              <th class="px-6 py-4 font-bold">Data</th>
+          <thead
+            class="bg-slate-900/80 border-b border-slate-800 text-slate-400 text-xs uppercase tracking-widest"
+          >
+            <tr>
+              <th class="px-6 py-4 font-bold">Data e Hora</th>
               <th class="px-6 py-4 font-bold">Colegiado</th>
-              <th class="px-6 py-4 font-bold">Status</th>
-              <th class="px-6 py-4 font-bold text-center">Processos</th>
+              <th class="px-6 py-4 font-bold text-center">Status</th>
+              <th class="px-6 py-4 font-bold text-center">Qtd. Processos</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800">
@@ -90,8 +92,8 @@
                   >
                   <a
                     th:href="@{/reunioes}"
-                    class="text-indigo-400 hover:underline text-xs"
-                    >Limpar todos os filtros</a
+                    class="text-indigo-400 hover:underline text-xs font-semibold"
+                    >Limpar filtros</a
                   >
                 </div>
               </td>
@@ -107,11 +109,19 @@
               ></td>
               <td
                 class="px-6 py-4 text-slate-400"
-                th:text="${r.colegiado != null ? r.colegiado.nome : 'Sem Colegiado'}"
+                th:text="${r.colegiado?.nome}"
               ></td>
+              <td class="px-6 py-4 text-center">
+                <span
+                  th:text="${r.status}"
+                  th:class="${r.status.name() == 'PROGRAMADA' ? 'text-indigo-400' : 'text-emerald-400'}"
+                  class="font-bold text-xs uppercase bg-slate-800/50 px-2 py-1 rounded border border-slate-700"
+                >
+                </span>
+              </td>
               <td
                 class="px-6 py-4 text-center font-mono text-indigo-300"
-                th:text="${r.processos != null ? r.processos.size() : 0}"
+                th:text="${r.processos?.size() ?: 0}"
               ></td>
             </tr>
           </tbody>
