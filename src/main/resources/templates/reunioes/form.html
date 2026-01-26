@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Colegi+ - Agendar Reunião</title>
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}" />
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen">
+    <th:block th:replace="~{header :: menu}"></th:block>
+
+    <main class="max-w-4xl mx-auto px-4 py-10">
+      <h1 class="text-3xl font-bold tracking-tight mb-6">
+        Agendar Nova <span class="text-indigo-400">Reunião</span>
+      </h1>
+
+      <form
+        th:action="@{/reunioes}"
+        method="post"
+        th:object="${reuniao}"
+        class="space-y-8 bg-slate-900/40 border border-slate-800 rounded-xl p-8 shadow-2xl"
+      >
+        <input type="hidden" th:field="*{id}" />
+
+        <div>
+          <label
+            for="data"
+            class="block mb-2 text-sm font-medium text-slate-300"
+            >Data e Hora da Sessão:</label
+          >
+          <input
+            type="datetime-local"
+            id="data"
+            th:field="*{data}"
+            required
+            class="bg-white text-slate-950 border border-slate-700 px-4 py-2 rounded-lg w-full md:w-1/2 focus:ring-2 focus:ring-indigo-500 outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="block mb-3 text-sm font-medium text-indigo-300"
+            >Definir Pauta (Processos Distribuídos):</label
+          >
+          <div
+            class="space-y-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50"
+          >
+            <div th:each="p : ${processos}">
+              <input type="checkbox" name="processosIds" th:value="${p.id}" />
+              <label
+                th:text="|${p.numero} - ${p.interessado?.nome} (${p.assunto?.nome})|"
+              ></label>
+            </div>
+
+            <div th:each="m : ${membros}">
+              <input type="checkbox" name="membrosIds" th:value="${m.id}" />
+              <label th:text="${m?.nome ?: 'Professor sem nome'}"></label>
+            </div>
+            <p
+              th:if="${#lists.isEmpty(processos)}"
+              class="text-slate-500 text-sm p-2 text-center italic"
+            >
+              Nenhum processo aguardando pauta.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block mb-3 text-sm font-medium text-indigo-300"
+            >Membros Participantes:</label
+          >
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-52 overflow-y-auto p-3 border border-slate-800 rounded-lg bg-slate-950/50"
+          >
+            <div
+              th:each="m : ${membros}"
+              class="flex items-center space-x-3 p-2 hover:bg-slate-800 rounded transition"
+            >
+              <input
+                type="checkbox"
+                name="membrosIds"
+                th:value="${m.id}"
+                class="w-4 h-4 text-indigo-600 bg-slate-700 border-slate-600 rounded"
+              />
+              <label class="text-sm text-slate-300" th:text="${m.nome}"></label>
+            </div>
+            <p
+              th:if="${#lists.isEmpty(membros)}"
+              class="text-slate-500 text-sm p-2 text-center italic"
+            >
+              Nenhum membro vinculado a este colegiado.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 pt-6 border-t border-slate-800">
+          <button
+            type="submit"
+            class="bg-indigo-600 hover:bg-indigo-500 transition px-8 py-2.5 rounded-lg text-white font-bold shadow-lg"
+          >
+            Agendar Reunião
+          </button>
+          <a
+            th:href="@{/reunioes}"
+            class="px-8 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition border border-slate-700"
+          >
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </main>
+  </body>
+</html>

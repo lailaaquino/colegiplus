@@ -49,6 +49,15 @@
           </a>
         </li>
 
+        <li th:if="${session.tipoUsuario == 'PROFESSOR'}" class="m-4">
+            <a
+              th:href="@{/reunioes}"
+              class="text-slate-300 hover:text-indigo-400 transition"
+            >
+              Reuniões
+            </a>
+        </li>
+
         <li th:if="${session.tipoUsuario != null}" class="m-4">
           <a th:href="@{/auth/logout}"
              class="text-red-400 hover:text-red-300 transition font-semibold">

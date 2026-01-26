@@ -90,6 +90,11 @@
               <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
               Analisar processos pendentes
             </a>
+            <a th:href="@{/reunioes}"
+              class="text-indigo-300 hover:text-indigo-200 flex items-center gap-2 mt-2">
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-indigo-400"></span>
+              Gerenciar e agendar reuniões
+            </a>
           </div>
 
           <div th:if="${session.tipoUsuario == 'ADMIN'}"
