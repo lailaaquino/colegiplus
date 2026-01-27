@@ -17,6 +17,10 @@
 
     <hr class="border-slate-800 mb-6" />
 
+    <p th:if="${mensagemErro}" th:text="${mensagemErro}"
+      class="mb-6 p-3 bg-rose-900/40 border border-rose-700 rounded-lg text-rose-300">
+    </p>
+
     <p
       th:if="${mensagem}"
       th:text="${mensagem}"
@@ -81,16 +85,17 @@
       <table class="w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
         <thead class="bg-slate-900 border-b border-slate-800">
           <tr class="text-xs uppercase tracking-wide text-slate-400">
-            <th class="px-3 py-2">Data e Hora</th>
-            <th class="px-3 py-2">Colegiado</th>
-            <th class="px-3 py-2 text-center">Status</th>
-            <th class="px-3 py-2 text-center">Qtd. Processos</th>
+            <th class="px-4 py-3 text-left w-1/5">Data e Hora</th>
+            <th class="px-4 py-3 text-left w-1/5">Colegiado</th>
+            <th class="px-4 py-3 text-center w-1/5">Status</th>
+            <th class="px-4 py-3 text-center w-1/5">Qtd. Processos</th>
+            <th class="px-4 py-3 text-center w-1/5">Ações</th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-slate-800">
           <tr th:if="${reunioes.totalElements == 0}">
-            <td colspan="4" class="px-4 py-4 text-center text-slate-400">
+            <td colspan="5" class="px-4 py-4 text-center text-slate-400">
               Nenhuma reunião encontrada.
             </td>
           </tr>
@@ -115,12 +120,32 @@
               class="px-3 py-2 text-center font-mono text-indigo-300"
               th:text="${r.processos != null ? r.processos.size() : 0}"
             ></td>
+
+            <td class="px-3 py-2 text-center">
+              <form th:if="${session.tipoUsuario == 'COORDENADOR' and r.status.name() == 'PROGRAMADA'}"
+                  th:action="@{/reunioes/{id}/iniciar(id=${r.id})}"
+                  method="post">
+                <button type="submit"
+                    class="bg-indigo-500 hover:bg-indigo-400 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
+                  Iniciar Sessão para Julgamento
+                </button>
+              </form>
+
+              <span th:if="${r.status.name() == 'EM_JULGAMENTO'}"
+                  class="text-amber-400 text-xs font-bold italic">
+                Sessão  acontecendo
+              </span>
+
+              <span th:if="${r.status.name() == 'ENCERRADA'}"
+                  class="text-slate-500 text-xs font-bold italic">
+                Sesão Encerrada
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- PAGINADOR (igual ao do professor) -->
     <div class="mt-8">
       <div th:replace="~{fragments/paging :: paginator(${resourcePath}, ${navPage})}"></div>
     </div>
