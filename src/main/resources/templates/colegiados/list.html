@@ -37,11 +37,11 @@
       <table class="min-w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
         <thead class="bg-slate-900 border-b border-slate-800">
           <tr class="text-xs uppercase tracking-wide text-slate-400">
-            <th class="px-3 py-2">ID</th>
-            <th class="px-3 py-2">Nome do Colegiado</th>
-            <th class="px-3 py-2">Coordenador</th>
-            <th class="px-3 py-2">Membros</th>
-            <th class="px-3 py-2">Ações</th>
+            <th class="px-3 py-2 text-left align-middle">ID</th>
+            <th class="px-3 py-2 text-left align-middle">Nome do Colegiado</th>
+            <th class="px-3 py-2 text-left align-middle">Coordenador</th>
+            <th class="px-3 py-2 text-left align-middle">Membros</th>
+            <th class="px-3 py-2 text-left align-middle">Ações</th>
           </tr>
         </thead>
 
@@ -53,14 +53,14 @@
           </tr>
 
           <tr th:each="c : ${colegiados.content}" class="hover:bg-slate-900 transition">
-            <td class="px-3 py-2" th:text="${c.id}"></td>
-            <td class="px-3 py-2" th:text="${c.nome}"></td>
-            <td class="px-3 py-2" th:text="${c.coordenador != null ? c.coordenador.nome : '—'}"></td>
-            <td class="px-3 py-2">
+            <td class="px-3 py-2 text-left align-middle" th:text="${c.id}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${c.nome}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${c.coordenador != null ? c.coordenador.nome : '—'}"></td>
+            <td class="px-3 py-2 text-left align-middle">
               <span th:text="${c.membros != null ? c.membros.size() : 0}"></span>
               <span> membros</span>
             </td>
-            <td class="px-3 py-2">
+            <td class="px-3 py-2 text-left align-middle">
               <div class="flex gap-3">
                 <a
                   th:href="@{/colegiados/{id}/edit(id=${c.id})}"

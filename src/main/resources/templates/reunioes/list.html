@@ -61,6 +61,13 @@
           >
             Encerrada
           </option>
+          <option
+            value="EM_JULGAMENTO"
+            th:selected="${statusSelecionado?.name() == 'EM_JULGAMENTO'}"
+          >
+            Em Julgamento
+          </option>
+
         </select>
       </div>
 
@@ -82,33 +89,33 @@
     <hr class="border-slate-800 mb-6" />
 
     <div class="overflow-x-auto">
-      <table class="w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
+      <table class="w-full table-fixed text-sm border-collapse">
         <thead class="bg-slate-900 border-b border-slate-800">
           <tr class="text-xs uppercase tracking-wide text-slate-400">
-            <th class="px-4 py-3 text-left w-1/5">Data e Hora</th>
-            <th class="px-4 py-3 text-left w-1/5">Colegiado</th>
-            <th class="px-4 py-3 text-center w-1/5">Status</th>
-            <th class="px-4 py-3 text-center w-1/5">Qtd. Processos</th>
-            <th class="px-4 py-3 text-center w-1/5">Ações</th>
+            <th class="px-4 py-3 text-left align-middle w-1/5">Data e Hora</th>
+            <th class="px-4 py-3 text-left align-middle w-1/5">Colegiado</th>
+            <th class="px-4 py-3 text-left align-middle w-1/5">Status</th>
+            <th class="px-4 py-3 text-left align-middle w-1/5">Qtd. Processos</th>
+            <th class="px-4 py-3 text-left align-middle w-1/5">Ações</th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-slate-800">
           <tr th:if="${reunioes.totalElements == 0}">
-            <td colspan="5" class="px-4 py-4 text-center text-slate-400">
+            <td colspan="5" class="px-4 py-4 text-center align-middle text-slate-400">
               Nenhuma reunião encontrada.
             </td>
           </tr>
 
           <tr th:each="r : ${reunioes.content}" class="hover:bg-slate-900 transition">
             <td
-              class="px-3 py-2 font-medium"
+              class="px-3 py-2 font-medium text-left align-middle"
               th:text="${r.data != null ? #dates.format(r.data, 'dd/MM/yyyy HH:mm') : 'Não definida'}"
             ></td>
 
-            <td class="px-3 py-2 text-slate-300" th:text="${r.colegiado?.nome}"></td>
+            <td class="px-3 py-2 text-slate-300 text-left align-middle" th:text="${r.colegiado?.nome}"></td>
 
-            <td class="px-3 py-2 text-center">
+            <td class="px-3 py-2 text-left align-middle">
               <span
                 th:text="${r.status}"
                 th:class="${r.status.name() == 'PROGRAMADA' ? 'text-indigo-300' : 'text-emerald-300'}"
@@ -117,11 +124,11 @@
             </td>
 
             <td
-              class="px-3 py-2 text-center font-mono text-indigo-300"
+              class="px-3 py-2 font-mono text-indigo-300 text-left align-middle"
               th:text="${r.processos != null ? r.processos.size() : 0}"
             ></td>
 
-            <td class="px-3 py-2 text-center">
+            <td class="px-3 py-2 text-left align-middle">
               <form th:if="${session.tipoUsuario == 'COORDENADOR' and r.status.name() == 'PROGRAMADA'}"
                   th:action="@{/reunioes/{id}/iniciar(id=${r.id})}"
                   method="post">

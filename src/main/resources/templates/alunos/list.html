@@ -41,12 +41,12 @@
 
             <thead class="bg-slate-900 border-b border-slate-800">
                 <tr class="text-xs uppercase tracking-wide text-slate-400">
-                    <th class="px-3 py-2">ID</th>
-                    <th class="px-3 py-2">Nome</th>
-                    <th class="px-3 py-2">Matrícula</th>
-                    <th class="px-3 py-2">Login</th>
-                    <th class="px-3 py-2">Telefone</th>
-                    <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">Ações</th>
+                    <th class="px-3 py-2 text-left align-middle">ID</th>
+                    <th class="px-3 py-2 text-left align-middle">Nome</th>
+                    <th class="px-3 py-2 text-left align-middle">Matrícula</th>
+                    <th class="px-3 py-2 text-left align-middle">Login</th>
+                    <th class="px-3 py-2 text-left align-middle">Telefone</th>
+                    <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 text-left align-middle">Ações</th>
                 </tr>
             </thead>
 
@@ -61,13 +61,13 @@
                 <tr th:each="aluno : ${alunos.content}"
                     class="hover:bg-slate-900 transition">
 
-                    <td class="px-3 py-2" th:text="${aluno.id}"></td>
-                    <td class="px-3 py-2" th:text="${aluno.nome}"></td>
-                    <td class="px-3 py-2" th:text="${aluno.matricula}"></td>
-                    <td class="px-3 py-2" th:text="${aluno.login}"></td>
-                    <td class="px-3 py-2" th:text="${aluno.telefone}"></td>
+                    <td class="px-3 py-2 text-left align-middle" th:text="${aluno.id}"></td>
+                    <td class="px-3 py-2 text-left align-middle" th:text="${aluno.nome}"></td>
+                    <td class="px-3 py-2 text-left align-middle" th:text="${aluno.matricula}"></td>
+                    <td class="px-3 py-2 text-left align-middle" th:text="${aluno.login}"></td>
+                    <td class="px-3 py-2 text-left align-middle" th:text="${aluno.telefone}"></td>
 
-                    <td th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 whitespace-nowrap">
+                    <td th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 text-left align-middle whitespace-nowrap">
                         <a th:href="@{/alunos/{id}/edit(id=${aluno.id})}"
                            class="text-indigo-400 hover:text-indigo-300 transition mr-3">
                             Editar

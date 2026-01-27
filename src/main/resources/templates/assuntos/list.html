@@ -47,9 +47,9 @@
       >
         <thead class="bg-slate-900 border-b border-slate-800">
           <tr class="text-xs uppercase tracking-wide text-slate-400">
-            <th class="px-3 py-2">ID</th>
-            <th class="px-3 py-2">Nome do Assunto</th>
-            <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">
+            <th class="px-3 py-2 text-left align-middle">ID</th>
+            <th class="px-3 py-2 text-left align-middle">Nome do Assunto</th>
+            <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 text-left align-middle">
               Ações
             </th>
           </tr>
@@ -57,18 +57,18 @@
 
         <tbody class="divide-y divide-slate-800">
           <tr th:if="${assuntos.totalElements == 0}">
-            <td colspan="3" class="px-4 py-4 text-center text-slate-400">
+            <td colspan="3" class="px-4 py-4 text-center align-middle text-slate-400">
               Nenhum assunto encontrado.
             </td>
           </tr>
 
           <tr th:each="a : ${assuntos.content}" class="hover:bg-slate-900 transition">
-            <td class="px-3 py-2" th:text="${a.id}"></td>
-            <td class="px-3 py-2" th:text="${a.nome}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${a.id}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${a.nome}"></td>
 
             <td
               th:if="${session.tipoUsuario == 'ADMIN'}"
-              class="px-3 py-2 flex gap-4"
+              class="px-3 py-2 text-left align-middle gap-4"
             >
               <a
                 th:href="@{'/assuntos/' + ${a.id}}"

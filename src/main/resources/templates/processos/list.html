@@ -115,32 +115,32 @@
       <table class="w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
         <thead class="bg-slate-900 border-b border-slate-800">
           <tr class="text-slate-300 text-xs uppercase tracking-wide">
-            <th class="px-3 py-2">N. do processo</th>
-            <th class="px-3 py-2">Assunto</th>
-            <th class="px-3 py-2">Texto de Requerimento</th>
-            <th class="px-3 py-2">Requerimento</th>
-            <th class="px-3 py-2">Data de Recepção</th>
-            <th class="px-3 py-2">Status</th>
+            <th class="px-3 py-2 text-left align-middle">N. do processo</th>
+            <th class="px-3 py-2 text-left align-middle">Assunto</th>
+            <th class="px-3 py-2 text-left align-middle">Texto de Requerimento</th>
+            <th class="px-3 py-2 text-left align-middle">Requerimento</th>
+            <th class="px-3 py-2 text-left align-middle">Data de Recepção</th>
+            <th class="px-3 py-2 text-left align-middle">Status</th>
             <th th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
-                class="px-3 py-2">Relator</th>
+                class="px-3 py-2 text-left align-middle">Relator</th>
             <th th:if="${session.tipoUsuario == 'COORDENADOR'}"
-                class="px-3 py-2">Ações</th>
+                class="px-3 py-2 text-left align-middle">Ações</th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-slate-800">
           <tr th:if="${processos.totalElements == 0}">
             <td th:colspan="${(session.tipoUsuario == 'COORDENADOR') ? 8 : ((session.tipoUsuario == 'PROFESSOR') ? 7 : 6)}"
-                class="px-4 py-4 text-center text-slate-400">
+                class="px-4 py-4 text-center text-slate-400 align-middle text-left">
               Nenhum processo encontrado.
             </td>
           </tr>
 
           <tr th:each="processo : ${processos.content}" class="hover:bg-slate-900 transition">
-            <td class="px-3 py-2" th:text="${processo.numero}"></td>
-            <td class="px-3 py-2" th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"></td>
-            <td class="px-3 py-2" th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"></td>
-            <td class="px-3 py-2">
+            <td class="px-3 py-2 text-left align-middle" th:text="${processo.numero}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${processo.assunto != null ? processo.assunto.nome : 'N/A'}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${processo.textoRequerimento != null ? processo.textoRequerimento : 'N/A'}"></td>
+            <td class="px-3 py-2 text-left align-middle">
               <a th:if="${processo.requerimentoPdf != null}"
                  th:href="@{/processos/{id}/requerimento(id=${processo.id})}"
                  class="text-indigo-400 hover:text-indigo-300 font-medium">
@@ -148,14 +148,14 @@
               </a>
               <span th:if="${processo.requerimentoPdf == null}" class="text-slate-500 text-sm">—</span>
             </td>
-            <td class="px-3 py-2" th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"></td>
-            <td class="px-3 py-2" th:text="${processo.status}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${processo.dataRecepcao != null ? #dates.format(processo.dataRecepcao, 'dd/MM/yyyy') : ''}"></td>
+            <td class="px-3 py-2 text-left align-middle" th:text="${processo.status}"></td>
 
             <td th:if="${session.tipoUsuario == 'PROFESSOR' or session.tipoUsuario == 'COORDENADOR'}"
-                class="px-3 py-2"
+                class="px-3 py-2 text-left align-middle"
                 th:text="${processo.relator != null ? processo.relator.nome : '—'}"></td>
 
-            <td th:if="${session.tipoUsuario == 'COORDENADOR'}" class="px-3 py-2">
+            <td th:if="${session.tipoUsuario == 'COORDENADOR'}" class="px-3 py-2 text-left align-middle">
               <a th:if="${processo.relator == null}"
                  th:href="@{/processos/{id}/distribuir(id=${processo.id})}"
                  class="text-indigo-400 hover:text-indigo-300 transition">
