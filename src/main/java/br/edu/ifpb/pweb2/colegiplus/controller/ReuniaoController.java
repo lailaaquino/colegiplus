@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -159,4 +160,19 @@ public class ReuniaoController {
         return "redirect:/reunioes";
     }
 
+    @PostMapping("/{id}/iniciar")
+    public String iniciarSessao(@PathVariable("id") Long id, RedirectAttributes attr) {
+        try {
+            if (id == null){
+                throw new IllegalArgumentException("ID da reunião não pode ser nulo.");
+            }
+            reuniaoService.iniciarSessao(id);
+            attr.addFlashAttribute("mensagem", "Sessão de julgamento iniciada com sucesso!");
+        } catch (IllegalStateException e) {
+            attr.addFlashAttribute("mensagemErro", e.getMessage());
+        } catch (Exception e) {
+            attr.addFlashAttribute("mensagemErro", "Erro ao iniciar sessão: " + e.getMessage());
+        }
+        return "redirect:/reunioes";
+    }
 }

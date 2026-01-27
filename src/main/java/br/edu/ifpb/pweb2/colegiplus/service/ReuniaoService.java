@@ -39,4 +39,17 @@ public class ReuniaoService {
     public Page<Reuniao> listarReunioesDoProfessor(Long professorId, StatusReuniao status, Pageable pageable) {
         return reuniaoRepository.findVisiveisParaProfessor(professorId, status, pageable);
     }
+
+    @Transactional
+    public void iniciarSessao(Long idReuniao) {
+    if (reuniaoRepository.existsByStatus(StatusReuniao.EM_JULGAMENTO)) {
+        throw new IllegalStateException("Não é possível iniciar: já existe uma sessão em julgamento.");
+    }
+
+    Reuniao reuniao = reuniaoRepository.findById(idReuniao)
+            .orElseThrow(() -> new IllegalArgumentException("Reunião não encontrada"));
+    
+    reuniao.setStatus(StatusReuniao.EM_JULGAMENTO);
+    reuniaoRepository.save(reuniao);
+}
 }

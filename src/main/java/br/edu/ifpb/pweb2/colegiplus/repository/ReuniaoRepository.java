@@ -23,6 +23,8 @@ public interface  ReuniaoRepository extends JpaRepository<Reuniao, Long> {
 
     boolean existsByColegiadoAndStatus(Colegiado colegiado, StatusReuniao status);
 
+    boolean existsByStatus(StatusReuniao status);
+
     @Query("""
     select distinct r
     from Reuniao r
