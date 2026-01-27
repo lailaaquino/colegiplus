@@ -3,6 +3,10 @@ package br.edu.ifpb.pweb2.colegiplus.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +21,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.Colegiado;
+import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
+import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.model.Processo;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
 import br.edu.ifpb.pweb2.colegiplus.repository.AssuntoRepository;
@@ -44,22 +50,37 @@ public class ProcessoController {
 
     @GetMapping
     public ModelAndView listar(
-        @RequestParam(required = false) String status,
-        @RequestParam(required = false) Long assuntoId,
-        @RequestParam(required = false, defaultValue = "asc") String ordem,
-        @RequestParam(required = false) String nomeAluno,
-        @RequestParam(required = false) String nomeProfessor,
-        HttpSession session) {
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size,
 
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long assuntoId,
+            @RequestParam(required = false, defaultValue = "asc") String ordem,
+            @RequestParam(required = false) String nomeAluno,
+            @RequestParam(required = false) String nomeProfessor,
+
+            HttpSession session
+    ) {
         ModelAndView mv = new ModelAndView("processos/list");
         String tipo = (String) session.getAttribute("tipoUsuario");
         Object usuario = session.getAttribute("usuario");
 
-        List<Processo> processos = List.of();
+        Page<Processo> processos = Page.empty();
 
         if ("ALUNO".equals(tipo)) {
             Aluno aluno = (Aluno) usuario;
-            processos = processoService.filtrarProcessosDoAluno(aluno, status, assuntoId, ordem);
+
+            Pageable pageable = PageRequest.of(
+                    page - 1,
+                    size,
+                    Sort.by("dataRecepcao").ascending()
+            );
+
+            if ("desc".equalsIgnoreCase(ordem)) {
+                pageable = PageRequest.of(page - 1, size, Sort.by("dataRecepcao").descending());
+            }
+
+            processos = processoService.filtrarProcessosDoAluno(aluno, status, assuntoId, pageable);
 
             mv.addObject("assuntos", assuntoRepository.findAll());
             mv.addObject("statusSelecionado", status);
@@ -68,17 +89,27 @@ public class ProcessoController {
         }
         else if ("PROFESSOR".equals(tipo)) {
             Professor professor = (Professor) usuario;
-            processos = processoService.listarProcessosDoProfessor(professor);
+
+            Pageable pageable = PageRequest.of(page - 1, size, Sort.by("dataRecepcao").descending());
+            processos = processoService.listarProcessosDoProfessor(professor, pageable);
         }
         else if ("COORDENADOR".equals(tipo)) {
             Professor coord = (Professor) usuario;
 
-            processos = processoService.filtrarProcessosDoCoordenador(status, nomeAluno, nomeProfessor);
+            Pageable pageable = PageRequest.of(page - 1, size, Sort.by("dataRecepcao").descending());
+            processos = processoService.filtrarProcessosDoCoordenador(status, nomeAluno, nomeProfessor, pageable);
 
-            Colegiado colegiado = colegiadoRepository.findByCoordenador(coord);
-            List<Professor> membros = (colegiado != null)
-                    ? colegiado.getMembros()
-                    : professorRepository.findAll();
+            List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coord);
+
+            List<Professor> membros = colegiados.stream()
+                    .filter(c -> c.getMembros() != null)
+                    .flatMap(c -> c.getMembros().stream())
+                    .distinct() // evita repetidos
+                    .toList();
+
+            if (membros.isEmpty()) {
+                membros = professorRepository.findAll();
+            }
 
             mv.addObject("membros", membros);
             mv.addObject("statusSelecionado", status);
@@ -86,9 +117,21 @@ public class ProcessoController {
             mv.addObject("nomeProfessor", nomeProfessor);
         }
 
+
+        NavPage navPage = NavPageBuilder.newNavPage(
+                processos.getNumber() + 1,
+                processos.getTotalElements(),
+                processos.getTotalPages(),
+                size
+        );
+
         mv.addObject("processos", processos);
+        mv.addObject("navPage", navPage);
+        mv.addObject("resourcePath", "processos");
+
         return mv;
     }
+
 
 
     @GetMapping("/novo")
@@ -130,15 +173,23 @@ public class ProcessoController {
         Professor coord = (Professor) session.getAttribute("usuario");
         Processo processo = processoService.findById(id);
 
-        Colegiado colegiado = colegiadoRepository.findByCoordenador(coord);
-        List <Professor> membros = (colegiado !=null)
-            ? colegiado.getMembros()
-            : professorRepository.findAll();
+        List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coord);
+
+        List<Professor> membros = colegiados.stream()
+                .filter(c -> c.getMembros() != null)
+                .flatMap(c -> c.getMembros().stream())
+                .distinct()
+                .toList();
+
+        if (membros.isEmpty()) {
+            membros = professorRepository.findAll();
+        }
 
         ModelAndView modelAndView = new ModelAndView("processos/distribuir");
         modelAndView.addObject("processo", processo);
         modelAndView.addObject("membros", membros);
-        return modelAndView; 
+        return modelAndView;
+
     }
 
     @PostMapping("/{id}/distribuir")

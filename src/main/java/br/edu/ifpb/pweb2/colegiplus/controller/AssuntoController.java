@@ -1,16 +1,23 @@
 package br.edu.ifpb.pweb2.colegiplus.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Assunto;
+import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
+import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.service.AssuntoService;
 import jakarta.servlet.http.HttpSession;
 
@@ -22,15 +29,34 @@ public class AssuntoController {
     private AssuntoService assuntoService;
 
     @GetMapping
-    public ModelAndView listar(ModelAndView mv, HttpSession session) {
+    public ModelAndView listar(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "3") int size,
+            ModelAndView mv,
+            HttpSession session
+    ) {
         String tipo = (String) session.getAttribute("tipoUsuario");
         if (!"ADMIN".equals(tipo)) {
             return new ModelAndView("redirect:/");
         }
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
+        Page<Assunto> assuntos = assuntoService.findAll(pageable);
+
+        NavPage navPage = NavPageBuilder.newNavPage(
+                assuntos.getNumber() + 1,
+                assuntos.getTotalElements(),
+                assuntos.getTotalPages(),
+                size
+        );
+
         mv.setViewName("assuntos/list");
-        mv.addObject("assuntos", assuntoService.findAll());
+        mv.addObject("assuntos", assuntos);
+        mv.addObject("navPage", navPage);
+        mv.addObject("resourcePath", "assuntos");
         return mv;
     }
+
 
     @GetMapping("/form")
     public ModelAndView getForm(ModelAndView mv, HttpSession session) {

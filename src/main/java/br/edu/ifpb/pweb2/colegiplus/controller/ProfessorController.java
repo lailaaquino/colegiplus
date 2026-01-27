@@ -2,16 +2,26 @@ package br.edu.ifpb.pweb2.colegiplus.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.validation.BindingResult;
-import jakarta.validation.Valid;
-import jakarta.servlet.http.HttpSession;
 
+import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
+import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
 import br.edu.ifpb.pweb2.colegiplus.service.ProfessorService;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/professores")
@@ -26,14 +36,33 @@ public class ProfessorController {
     }
 
     @GetMapping({"", "/"})
-    public ModelAndView listarProfessores(ModelAndView modelAndView, HttpSession session) {
+    public ModelAndView listarProfessores(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "3") int size,
+            ModelAndView mv,
+            HttpSession session
+    ) {
         if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home"); 
+            return new ModelAndView("redirect:/home");
         }
-        modelAndView.addObject("professores", professorService.findAll());
-        modelAndView.setViewName("professores/list");
-        return modelAndView;
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
+        Page<Professor> professores = professorService.findAll(pageable);
+
+        NavPage navPage = NavPageBuilder.newNavPage(
+                professores.getNumber() + 1,
+                professores.getTotalElements(),
+                professores.getTotalPages(),
+                size
+        );
+
+        mv.setViewName("professores/list");
+        mv.addObject("professores", professores);
+        mv.addObject("navPage", navPage);
+        mv.addObject("resourcePath", "professores");
+        return mv;
     }
+
     
     @GetMapping({"/form", "/{id}/edit"})
     public ModelAndView mostrarFormulario(@PathVariable(required = false) Long id, ModelAndView modelAndView, HttpSession session) {

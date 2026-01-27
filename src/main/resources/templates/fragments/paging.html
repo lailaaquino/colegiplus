@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+  <body>
+
+    <section th:fragment="paginator(resourcePath, navPage)"
+             th:if="${navPage != null and navPage.totalPages > 1}"
+             class="mt-6">
+      <nav aria-label="Paginador" class="flex items-center justify-center">
+        <ul class="inline-flex items-center gap-2 text-sm">
+
+          <li th:classappend="${navPage.currentPage == 1} ? 'opacity-50 pointer-events-none' : ''">
+            <a th:replace="~{fragments/paging :: page(1, ${navPage.pageSize}, '«', 'Primeira', ${resourcePath})}"></a>
+          </li>
+
+          <li th:classappend="${navPage.currentPage == 1} ? 'opacity-50 pointer-events-none' : ''">
+            <a th:replace="~{fragments/paging :: page(${navPage.currentPage - 1}, ${navPage.pageSize}, 'Anterior', 'Página anterior', ${resourcePath})}"></a>
+          </li>
+
+          <li th:if="${navPage.currentPage - 2 > 1}">
+            <span class="px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/50 text-slate-400">…</span>
+          </li>
+
+          <li th:each="p : ${#numbers.sequence(navPage.currentPage > 2 ? navPage.currentPage - 2 : 1,
+                                              navPage.currentPage + 2 < navPage.totalPages ? navPage.currentPage + 2 : navPage.totalPages)}">
+            <a th:replace="~{fragments/paging :: pageNum(${p}, ${navPage.pageSize}, ${p}, 'Página ' + ${p}, ${resourcePath}, ${navPage.currentPage})}"></a>
+          </li>
+
+          <li th:if="${navPage.currentPage + 2 < navPage.totalPages}">
+            <span class="px-3 py-2 rounded-lg border border-slate-800 bg-slate-900/50 text-slate-400">…</span>
+          </li>
+
+          <li th:classappend="${navPage.currentPage == navPage.totalPages} ? 'opacity-50 pointer-events-none' : ''">
+            <a th:replace="~{fragments/paging :: page(${navPage.currentPage + 1}, ${navPage.pageSize}, 'Próxima', 'Próxima página', ${resourcePath})}"></a>
+          </li>
+
+          <li th:classappend="${navPage.currentPage == navPage.totalPages} ? 'opacity-50 pointer-events-none' : ''">
+            <a th:replace="~{fragments/paging :: page(${navPage.totalPages}, ${navPage.pageSize}, '»', 'Última', ${resourcePath})}"></a>
+          </li>
+
+        </ul>
+      </nav>
+    </section>
+
+    <a th:fragment="page(pageNum, pageSize, label, tooltip, resourcePath)"
+       class="px-3 py-2 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+       th:href="@{'/' + ${resourcePath} + '?page=' + ${pageNum} + '&size=' + ${pageSize}}"
+       th:title="${tooltip}">
+      [[${label}]]
+    </a>
+
+    <a th:fragment="pageNum(pageNum, pageSize, label, tooltip, resourcePath, currentPage)"
+       th:classappend="${pageNum == currentPage} ? ' bg-indigo-600 border-indigo-500 text-white' : ' bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700'"
+       class="px-3 py-2 rounded-lg border transition"
+       th:href="@{'/' + ${resourcePath} + '?page=' + ${pageNum} + '&size=' + ${pageSize}}"
+       th:title="${tooltip}">
+      [[${label}]]
+    </a>
+
+  </body>
+</html>

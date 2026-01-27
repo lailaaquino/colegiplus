@@ -30,19 +30,18 @@
       >
         Novo Professor
       </a>
+
       <p
         th:if="${erro}"
         th:text="${erro}"
-        class="mb-4 p-3 bg-red-900/40 border-red-700 rounded-lg text-red-300"
+        class="mt-4 p-3 bg-red-900/40 border border-red-700 rounded-lg text-red-300"
       ></p>
     </div>
 
     <hr class="border-slate-800 mb-6" />
 
     <div class="overflow-x-auto">
-      <table
-        class="min-w-full text-sm border border-slate-800 rounded-lg overflow-hidden"
-      >
+      <table class="min-w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
         <thead class="bg-slate-900 border-b border-slate-800">
           <tr class="text-xs uppercase tracking-wide text-slate-400">
             <th class="px-3 py-2">ID</th>
@@ -51,33 +50,27 @@
             <th class="px-3 py-2">Login</th>
             <th class="px-3 py-2">Telefone</th>
             <th class="px-3 py-2">Coordenador</th>
-            <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">
-              Ações
-            </th>
+            <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">Ações</th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-slate-800">
-          <tr th:if="${#lists.isEmpty(professores)}">
+          <!-- vazio -->
+          <tr th:if="${professores.totalElements == 0}">
             <td colspan="7" class="px-4 py-4 text-center text-slate-400">
               Nenhum professor cadastrado.
             </td>
           </tr>
 
-          <tr
-            th:each="professor : ${professores}"
-            class="hover:bg-slate-900 transition"
-          >
+          <!-- conteúdo paginado -->
+          <tr th:each="professor : ${professores.content}" class="hover:bg-slate-900 transition">
             <td class="px-3 py-2" th:text="${professor.id}"></td>
             <td class="px-3 py-2" th:text="${professor.nome}"></td>
             <td class="px-3 py-2" th:text="${professor.matricula}"></td>
             <td class="px-3 py-2" th:text="${professor.login}"></td>
             <td class="px-3 py-2" th:text="${professor.fone}"></td>
 
-            <td
-              class="px-3 py-2"
-              th:text="${professor.coordenador ? 'Sim' : 'Não'}"
-            ></td>
+            <td class="px-3 py-2" th:text="${professor.coordenador ? 'Sim' : 'Não'}"></td>
 
             <td th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2">
               <a
@@ -98,6 +91,11 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- PAGINADOR (igual aos outros) -->
+    <div class="mt-8">
+      <div th:replace="~{fragments/paging :: paginator(${resourcePath}, ${navPage})}"></div>
     </div>
 
     <div class="mt-6">

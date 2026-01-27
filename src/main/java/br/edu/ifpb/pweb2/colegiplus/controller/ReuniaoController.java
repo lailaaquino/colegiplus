@@ -1,9 +1,12 @@
 package br.edu.ifpb.pweb2.colegiplus.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Colegiado;
+import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
+import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
 import br.edu.ifpb.pweb2.colegiplus.model.Reuniao;
 import br.edu.ifpb.pweb2.colegiplus.model.StatusProcesso;
@@ -47,18 +52,35 @@ public class ReuniaoController {
         Professor coordenador = (Professor) session.getAttribute("usuario");
         if (coordenador == null) return new ModelAndView("redirect:/auth");
 
-        Colegiado colegiado = colegiadoRepository.findByCoordenador(coordenador);
+        List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coordenador);
+        if (colegiados == null || colegiados.isEmpty()) {
+            ModelAndView mv = new ModelAndView("redirect:/reunioes");
+            session.setAttribute("mensagem", "Você não está como coordenador de nenhum colegiado.");
+            return mv;
+        }
+        List<Professor> membros = colegiados.stream()
+                .filter(c -> c.getMembros() != null)
+                .flatMap(c -> c.getMembros().stream())
+                .distinct()
+                .toList();
 
         ModelAndView mv = new ModelAndView("reunioes/form");
-        mv.addObject("membros", colegiado.getMembros());
+        mv.addObject("membros", membros);
         mv.addObject("processos", processoRepository.findByStatus(StatusProcesso.DISTRIBUIDO));
         mv.addObject("reuniao", new Reuniao());
         return mv;
     }
 
+
     @GetMapping
-    public ModelAndView listar(@RequestParam(value = "status", required = false) String status, HttpSession session) {
+    public ModelAndView listar(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(value = "status", required = false) String status,
+            HttpSession session
+    ) {
         ModelAndView mv = new ModelAndView("reunioes/list");
+
         Professor professor = (Professor) session.getAttribute("usuario");
         if (professor == null) return new ModelAndView("redirect:/auth");
 
@@ -71,22 +93,50 @@ public class ReuniaoController {
             }
         }
 
-        List<Reuniao> reunioes = reuniaoService.listarReunioesDoProfessor(professor.getId(), statusEnum);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by("data").descending());
 
-        mv.addObject("reunioes", reunioes != null ? reunioes : new ArrayList<Reuniao>());
+        Page<Reuniao> reunioes = reuniaoService.listarReunioesDoProfessor(
+                professor.getId(),
+                statusEnum,
+                pageable
+        );
+
+        NavPage navPage = NavPageBuilder.newNavPage(
+                reunioes.getNumber() + 1,
+                reunioes.getTotalElements(),
+                reunioes.getTotalPages(),
+                size
+        );
+
+        mv.addObject("reunioes", reunioes);
         mv.addObject("statusSelecionado", statusEnum);
+
+        mv.addObject("navPage", navPage);
+
+        String resourcePath = "reunioes" + (statusEnum != null ? "?status=" + statusEnum.name() : "");
+        mv.addObject("resourcePath", resourcePath);
+
         return mv;
     }
 
+
     @PostMapping
-    public String salvarSessao(Reuniao reuniao,
-                              @RequestParam(required = false) List<Long> processosIds,
-                              @RequestParam(required = false) List<Long> participantesIds,
-                              HttpSession session) {
+    public String salvarSessao(
+            Reuniao reuniao,
+            @RequestParam(required = false) List<Long> processosIds,
+            @RequestParam(required = false) List<Long> participantesIds,
+            HttpSession session
+    ) {
         Professor coordenador = (Professor) session.getAttribute("usuario");
         if (coordenador == null) return "redirect:/auth";
 
-        Colegiado colegiado = colegiadoRepository.findByCoordenador(coordenador);
+        List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coordenador);
+        if (colegiados == null || colegiados.isEmpty()) {
+            return "redirect:/reunioes";
+        }
+
+        // ✅ escolhe 1 colegiado (sem mexer no form)
+        Colegiado colegiado = colegiados.get(0);
 
         reuniao.setColegiado(colegiado);
         reuniao.setStatus(StatusReuniao.PROGRAMADA);
@@ -95,10 +145,14 @@ public class ReuniaoController {
             reuniao.setProcessos(processoRepository.findAllById(processosIds));
         }
 
+        // membros do colegiado escolhido (para validar participante)
+        List<Long> membrosIds = (colegiado.getMembros() == null)
+                ? List.of()
+                : colegiado.getMembros().stream().map(Professor::getId).toList();
+
         if (participantesIds != null && !participantesIds.isEmpty()) {
             List<Professor> participantes = professorRepository.findAllById(participantesIds);
 
-            List<Long> membrosIds = colegiado.getMembros().stream().map(Professor::getId).toList();
             boolean temFora = participantes.stream().anyMatch(p -> !membrosIds.contains(p.getId()));
             if (temFora) {
                 throw new IllegalArgumentException("Participante não pertence ao colegiado.");
@@ -112,4 +166,5 @@ public class ReuniaoController {
         reuniaoRepository.save(reuniao);
         return "redirect:/reunioes";
     }
+
 }

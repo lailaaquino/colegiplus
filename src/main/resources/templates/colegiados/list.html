@@ -1,69 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Colegi+ - Colegiados</title>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Gerenciar Colegiados</title>
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}" />
+  </head>
 
-    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
-</head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen p-6">
+    <th:block th:replace="~{header :: menu}"></th:block>
 
-<body class="bg-slate-950 text-slate-100 min-h-screen p-6">
-    <th:block th:replace="header :: menu"></th:block>
+    <h1 class="text-3xl font-bold tracking-tight mb-4">
+      Gerenciamento de <span class="text-indigo-400">Colegiados</span>
+    </h1>
 
-    <h1 class="text-3xl font-bold tracking-tight mb-4">Gerenciamento de <span class="text-indigo-400">Colegiados</span></h1>
+    <hr class="border-slate-800 mb-6" />
 
-    <hr class="border-slate-800 mb-6">
-
-    <div th:if="${mensagem}" class="mb-4 p-3 bg-emerald-900/40 border border-emerald-700 rounded-lg text-emerald-300">
-        <p th:text="${mensagem}"></p>
+    <div
+      th:if="${mensagem}"
+      class="mb-4 p-3 bg-emerald-900/40 border border-emerald-700 rounded-lg text-emerald-300"
+    >
+      <p th:text="${mensagem}"></p>
     </div>
 
     <a th:href="@{/colegiados/form}">
-        <button type="button"
-            class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow mb-6">
-            Cadastrar Novo Colegiado
-        </button>
+      <button
+        type="button"
+        class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow mb-6 transition"
+      >
+        Cadastrar Novo Colegiado
+      </button>
     </a>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
-            <thead class="bg-slate-900 border-b border-slate-800">
-                <tr class="text-xs uppercase tracking-wide text-slate-400">
-                    <th class="px-3 py-2">ID</th>
-                    <th class="px-3 py-2">Nome do Colegiado</th>
-                    <th class="px-3 py-2">Coordenador</th>
-                    <th class="px-3 py-2">Membros</th>
-                    <th class="px-3 py-2">Ações</th>
-                </tr>
-            </thead>
+      <table class="min-w-full text-sm border border-slate-800 rounded-lg overflow-hidden">
+        <thead class="bg-slate-900 border-b border-slate-800">
+          <tr class="text-xs uppercase tracking-wide text-slate-400">
+            <th class="px-3 py-2">ID</th>
+            <th class="px-3 py-2">Nome do Colegiado</th>
+            <th class="px-3 py-2">Coordenador</th>
+            <th class="px-3 py-2">Membros</th>
+            <th class="px-3 py-2">Ações</th>
+          </tr>
+        </thead>
 
-            <tbody class="divide-y divide-slate-800">
-                <tr th:each="c : ${colegiados}" class="hover:bg-slate-900 transition">
-                    <td class="px-3 py-2" th:text="${c.id}"></td>
-                    <td class="px-3 py-2" th:text="${c.nome}"></td>
-                    <td class="px-3 py-2" th:text="${c.coordenador?.nome}"></td>
-                    <td class="px-3 py-2">
-                        <span th:text="${c.membros != null ? c.membros.size() : 0}"></span>
-                        <span> membros</span>
-                    </td>
-                    <td class="px-3 py-2 flex gap-3">
+        <tbody class="divide-y divide-slate-800">
+          <tr th:if="${colegiados.totalElements == 0}">
+            <td colspan="5" class="px-4 py-4 text-center text-slate-400">
+              Nenhum colegiado cadastrado.
+            </td>
+          </tr>
 
-                        <a th:href="@{/colegiados/{id}/edit(id=${c.id})}"
-                            class="text-indigo-400 hover:text-indigo-300 transition">Editar</a>
+          <tr th:each="c : ${colegiados.content}" class="hover:bg-slate-900 transition">
+            <td class="px-3 py-2" th:text="${c.id}"></td>
+            <td class="px-3 py-2" th:text="${c.nome}"></td>
+            <td class="px-3 py-2" th:text="${c.coordenador != null ? c.coordenador.nome : '—'}"></td>
+            <td class="px-3 py-2">
+              <span th:text="${c.membros != null ? c.membros.size() : 0}"></span>
+              <span> membros</span>
+            </td>
+            <td class="px-3 py-2">
+              <div class="flex gap-3">
+                <a
+                  th:href="@{/colegiados/{id}/edit(id=${c.id})}"
+                  class="text-indigo-400 hover:text-indigo-300 transition"
+                >
+                  Editar
+                </a>
 
-                        <a th:href="@{/colegiados/{id}/delete(id=${c.id})}"
-                            onclick="return confirm('Deseja realmente DELETAR o colegiado ' + '${c.nome}' + '?');"
-                            class="text-red-400 hover:text-red-300 transition">
-                            Deletar
-                        </a>
-
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                <a
+                  th:href="@{/colegiados/{id}/delete(id=${c.id})}"
+                  onclick="return confirm('Deseja realmente DELETAR este colegiado?');"
+                  class="text-red-400 hover:text-red-300 transition"
+                >
+                  Deletar
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-</body>
-
+    <div class="mt-8">
+      <div th:replace="~{fragments/paging :: paginator(${resourcePath}, ${navPage})}"></div>
+    </div>
+  </body>
 </html>
