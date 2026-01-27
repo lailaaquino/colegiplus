@@ -1,8 +1,8 @@
 package br.edu.ifpb.pweb2.colegiplus.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,10 +35,9 @@ public class ReuniaoService {
         }
     }
 
-    public List<Reuniao> listarReunioesDoProfessor(Long professorId, StatusReuniao status) {
-    if (status != null) {
-        return reuniaoRepository.findVisiveisParaProfessorAndStatus(professorId, status);
+    // ✅ NOVO: paginado
+    @Transactional(readOnly = true)
+    public Page<Reuniao> listarReunioesDoProfessor(Long professorId, StatusReuniao status, Pageable pageable) {
+        return reuniaoRepository.findVisiveisParaProfessor(professorId, status, pageable);
     }
-    return reuniaoRepository.findVisiveisParaProfessor(professorId);
-}
 }

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,14 +40,12 @@ public class ProcessoService implements Service<Processo, Long> {
         return processoRepository.save(p);
     }
 
-
     @Transactional
     public Processo saveForAluno(Processo p, Aluno alunoInteressado, MultipartFile requerimentoFile) {
-
         boolean jaDistribuido =
-            p.getDataDistribuicao() != null ||
-            p.getRelator() != null ||
-            (p.getStatus() != null && p.getStatus() != StatusProcesso.CRIADO);
+                p.getDataDistribuicao() != null ||
+                p.getRelator() != null ||
+                (p.getStatus() != null && p.getStatus() != StatusProcesso.CRIADO);
 
         if (requerimentoFile != null && !requerimentoFile.isEmpty() && jaDistribuido) {
             throw new RuntimeException("Não é permitido enviar requerimento após a distribuição.");
@@ -80,96 +80,51 @@ public class ProcessoService implements Service<Processo, Long> {
         }
     }
 
-    public List<Processo> filtrarProcessosDoAluno(
+    public Page<Processo> filtrarProcessosDoAluno(
             Aluno aluno,
             String status,
             Long assuntoId,
-            String ordem) {
+            Pageable pageable
+    ) {
+        if (status != null && !status.isBlank() && assuntoId != null) {
+            StatusProcesso sp = StatusProcesso.valueOf(status.toUpperCase());
+            return processoRepository.findByInteressadoAndStatusAndAssunto_Id(aluno, sp, assuntoId, pageable);
+        }
 
-        List<Processo> processos = processoRepository.findByInteressado(aluno);
-
-        if (status != null && !status.isEmpty()) {
-            processos = processos.stream()
-                    .filter(p -> p.getStatus() != null
-                            && p.getStatus().name().equalsIgnoreCase(status))
-                    .toList();
+        if (status != null && !status.isBlank()) {
+            StatusProcesso sp = StatusProcesso.valueOf(status.toUpperCase());
+            return processoRepository.findByInteressadoAndStatus(aluno, sp, pageable);
         }
 
         if (assuntoId != null) {
-            processos = processos.stream()
-                    .filter(p -> p.getAssunto() != null
-                            && p.getAssunto().getId().equals(assuntoId))
-                    .toList();
+            return processoRepository.findByInteressadoAndAssunto_Id(aluno, assuntoId, pageable);
         }
 
-        if ("desc".equalsIgnoreCase(ordem)) {
-            processos = processos.stream()
-                    .sorted((a, b) -> {
-                        Date da = a.getDataRecepcao();
-                        Date db = b.getDataRecepcao();
-                        if (da == null && db == null) return 0;
-                        if (da == null) return 1;
-                        if (db == null) return -1;
-                        return db.compareTo(da); 
-                    })
-                    .toList();
-        } else {
-            processos = processos.stream()
-                    .sorted((a, b) -> {
-                        Date da = a.getDataRecepcao();
-                        Date db = b.getDataRecepcao();
-                        if (da == null && db == null) return 0;
-                        if (da == null) return 1;
-                        if (db == null) return -1;
-                        return da.compareTo(db);
-                    })
-                    .toList();
-        }
-
-        return processos;
+        return processoRepository.findByInteressado(aluno, pageable);
     }
 
-    public List<Processo> filtrarProcessosDoCoordenador(
+    public Page<Processo> filtrarProcessosDoCoordenador(
             String status,
             String nomeAluno,
-            String nomeProfessor) {
+            String nomeProfessor,
+            Pageable pageable
+    ) {
+        String alunoLike = (nomeAluno == null || nomeAluno.isBlank()) ? null : nomeAluno.trim();
+        String profLike = (nomeProfessor == null || nomeProfessor.isBlank()) ? null : nomeProfessor.trim();
+        StatusProcesso sp = (status == null || status.isBlank()) ? null : StatusProcesso.valueOf(status.toUpperCase());
 
-        List<Processo> processos = processoRepository.findAll();
-
-        if (status != null && !status.isBlank()) {
-            StatusProcesso sp = StatusProcesso.valueOf(status);
-            processos = processos.stream()
-                    .filter(p -> p.getStatus() == sp)
-                    .toList();
-        }
-
-        if (nomeAluno != null && !nomeAluno.isBlank()) {
-            processos = processos.stream()
-                    .filter(p -> p.getInteressado() != null &&
-                                p.getInteressado().getNome().toLowerCase().contains(nomeAluno.toLowerCase()))
-                    .toList();
-        }
-
-        if (nomeProfessor != null && !nomeProfessor.isBlank()) {
-            processos = processos.stream()
-                    .filter(p -> p.getRelator() != null &&
-                                p.getRelator().getNome().toLowerCase().contains(nomeProfessor.toLowerCase()))
-                    .toList();
-        }
-
-        return processos;
+        return processoRepository.filtrarCoordenador(sp, alunoLike, profLike, pageable);
     }
 
-
-    public List<Processo> listarProcessosDoProfessor(Professor professor) {
-        return processoRepository.findByRelator(professor);
+    public Page<Processo> listarProcessosDoProfessor(Professor professor, Pageable pageable) {
+        return processoRepository.findByRelator(professor, pageable);
     }
 
-    @Transactional 
+    @Transactional
     public void distribuirProcesso(Long processoId, Professor relator) {
         Processo p = this.findById(processoId);
-        if (p ==null) {
-            throw new IllegalArgumentException ("Processo não encontrado");
+        if (p == null) {
+            throw new IllegalArgumentException("Processo não encontrado");
         }
 
         p.setRelator(relator);
