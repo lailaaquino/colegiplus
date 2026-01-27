@@ -3,10 +3,12 @@ package br.edu.ifpb.pweb2.colegiplus.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,6 +47,8 @@ public class Processo implements Serializable {
     private Date dataParecer;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "parecer", columnDefinition = "bytea")
     private byte[] parecer;
 
     @Enumerated(EnumType.STRING)
@@ -75,7 +79,9 @@ public class Processo implements Serializable {
     private String requerimentoContentType;
 
     @Lob
-    @Column(name="requerimento_pdf")
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "requerimento_pdf", columnDefinition = "bytea")
     private byte[] requerimentoPdf;
+
 
 }

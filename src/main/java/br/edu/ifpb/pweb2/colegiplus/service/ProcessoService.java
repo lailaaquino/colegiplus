@@ -103,18 +103,23 @@ public class ProcessoService implements Service<Processo, Long> {
         return processoRepository.findByInteressado(aluno, pageable);
     }
 
-    public Page<Processo> filtrarProcessosDoCoordenador(
-            String status,
-            String nomeAluno,
-            String nomeProfessor,
-            Pageable pageable
-    ) {
+   public Page<Processo> filtrarProcessosDoCoordenador(String status, String nomeAluno, String nomeProfessor, Pageable pageable) {
         String alunoLike = (nomeAluno == null || nomeAluno.isBlank()) ? null : nomeAluno.trim();
-        String profLike = (nomeProfessor == null || nomeProfessor.isBlank()) ? null : nomeProfessor.trim();
+        String profLike  = (nomeProfessor == null || nomeProfessor.isBlank()) ? null : nomeProfessor.trim();
         StatusProcesso sp = (status == null || status.isBlank()) ? null : StatusProcesso.valueOf(status.toUpperCase());
 
-        return processoRepository.filtrarCoordenador(sp, alunoLike, profLike, pageable);
+        if (alunoLike == null && profLike == null) {
+            return processoRepository.filtrarCoordenadorSomenteStatus(sp, pageable);
+        }
+        if (alunoLike != null && profLike == null) {
+            return processoRepository.filtrarCoordenadorStatusENomeAluno(sp, alunoLike, pageable);
+        }
+        if (alunoLike == null && profLike != null) {
+            return processoRepository.filtrarCoordenadorStatusENomeProfessor(sp, profLike, pageable);
+        }
+        return processoRepository.filtrarCoordenadorCompleto(sp, alunoLike, profLike, pageable);
     }
+
 
     public Page<Processo> listarProcessosDoProfessor(Professor professor, Pageable pageable) {
         return processoRepository.findByRelator(professor, pageable);

@@ -104,7 +104,7 @@ public class ProcessoController {
             List<Professor> membros = colegiados.stream()
                     .filter(c -> c.getMembros() != null)
                     .flatMap(c -> c.getMembros().stream())
-                    .distinct() // evita repetidos
+                    .distinct()
                     .toList();
 
             if (membros.isEmpty()) {

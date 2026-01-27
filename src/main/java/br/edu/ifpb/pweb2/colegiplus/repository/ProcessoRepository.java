@@ -50,15 +50,55 @@ public interface ProcessoRepository extends JpaRepository<Processo, Long> {
         SELECT p
         FROM Processo p
         WHERE (:status IS NULL OR p.status = :status)
-          AND (:nomeAluno IS NULL OR LOWER(p.interessado.nome) LIKE LOWER(CONCAT('%', :nomeAluno, '%')))
-          AND (:nomeProfessor IS NULL OR (p.relator IS NOT NULL AND LOWER(p.relator.nome) LIKE LOWER(CONCAT('%', :nomeProfessor, '%'))))
+        ORDER BY p.dataRecepcao DESC
         """)
-    Page<Processo> filtrarCoordenador(
-            @Param("status") StatusProcesso status,
-            @Param("nomeAluno") String nomeAluno,
-            @Param("nomeProfessor") String nomeProfessor,
-            Pageable pageable
-    );
+        Page<Processo> filtrarCoordenadorSomenteStatus(
+        @Param("status") StatusProcesso status,
+        Pageable pageable
+        );
+
+        @Query("""
+        SELECT p
+        FROM Processo p
+        WHERE (:status IS NULL OR p.status = :status)
+        AND LOWER(p.interessado.nome) LIKE LOWER(CONCAT('%', :nomeAluno, '%'))
+        ORDER BY p.dataRecepcao DESC
+        """)
+        Page<Processo> filtrarCoordenadorStatusENomeAluno(
+        @Param("status") StatusProcesso status,
+        @Param("nomeAluno") String nomeAluno,
+        Pageable pageable
+        );
+
+        @Query("""
+        SELECT p
+        FROM Processo p
+        WHERE (:status IS NULL OR p.status = :status)
+        AND p.relator IS NOT NULL
+        AND LOWER(p.relator.nome) LIKE LOWER(CONCAT('%', :nomeProfessor, '%'))
+        ORDER BY p.dataRecepcao DESC
+        """)
+        Page<Processo> filtrarCoordenadorStatusENomeProfessor(
+        @Param("status") StatusProcesso status,
+        @Param("nomeProfessor") String nomeProfessor,
+        Pageable pageable
+        );
+
+        @Query("""
+        SELECT p
+        FROM Processo p
+        WHERE (:status IS NULL OR p.status = :status)
+        AND LOWER(p.interessado.nome) LIKE LOWER(CONCAT('%', :nomeAluno, '%'))
+        AND p.relator IS NOT NULL
+        AND LOWER(p.relator.nome) LIKE LOWER(CONCAT('%', :nomeProfessor, '%'))
+        ORDER BY p.dataRecepcao DESC
+        """)
+        Page<Processo> filtrarCoordenadorCompleto(
+        @Param("status") StatusProcesso status,
+        @Param("nomeAluno") String nomeAluno,
+        @Param("nomeProfessor") String nomeProfessor,
+        Pageable pageable
+        );
 
     @Transactional(readOnly = true)
     List<Processo> findByStatus(StatusProcesso status);
