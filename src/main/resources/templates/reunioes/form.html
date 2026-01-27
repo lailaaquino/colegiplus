@@ -14,6 +14,10 @@
         Agendar Nova <span class="text-indigo-400">Reunião</span>
       </h1>
 
+      <div th:if="${mensagemErro}" class="p-4 mb-4 text-sm text-red-400 bg-red-900/30 rounded-lg border border-red-800" role="alert">
+        <span class="font-bold">Atenção!</span> [[${mensagemErro}]]
+      </div>
+
       <form
         th:action="@{/reunioes}"
         method="post"

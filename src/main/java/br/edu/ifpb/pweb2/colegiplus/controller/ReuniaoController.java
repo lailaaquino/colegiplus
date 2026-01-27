@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.edu.ifpb.pweb2.colegiplus.model.Colegiado;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
@@ -125,42 +126,33 @@ public class ReuniaoController {
             Reuniao reuniao,
             @RequestParam(required = false) List<Long> processosIds,
             @RequestParam(required = false) List<Long> participantesIds,
-            HttpSession session
+            HttpSession session,
+            RedirectAttributes attr
     ) {
         Professor coordenador = (Professor) session.getAttribute("usuario");
         if (coordenador == null) return "redirect:/auth";
+
+        if (processosIds == null || processosIds.isEmpty() || participantesIds == null || participantesIds.isEmpty()) { 
+            attr.addFlashAttribute("mensagemErro", "Selecione ao menos um processo e um participante para agendar a reunião.");
+            return "redirect:/reunioes/nova";
+        }
 
         List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coordenador);
         if (colegiados == null || colegiados.isEmpty()) {
             return "redirect:/reunioes";
         }
 
-        // ✅ escolhe 1 colegiado (sem mexer no form)
         Colegiado colegiado = colegiados.get(0);
-
         reuniao.setColegiado(colegiado);
         reuniao.setStatus(StatusReuniao.PROGRAMADA);
 
-        if (processosIds != null && !processosIds.isEmpty()) {
-            reuniao.setProcessos(processoRepository.findAllById(processosIds));
-        }
+        reuniao.setProcessos(processoRepository.findAllById(processosIds));
+        reuniao.setParticipantes(professorRepository.findAllById(participantesIds));
 
-        // membros do colegiado escolhido (para validar participante)
-        List<Long> membrosIds = (colegiado.getMembros() == null)
-                ? List.of()
-                : colegiado.getMembros().stream().map(Professor::getId).toList();
-
-        if (participantesIds != null && !participantesIds.isEmpty()) {
-            List<Professor> participantes = professorRepository.findAllById(participantesIds);
-
-            boolean temFora = participantes.stream().anyMatch(p -> !membrosIds.contains(p.getId()));
-            if (temFora) {
-                throw new IllegalArgumentException("Participante não pertence ao colegiado.");
-            }
-
-            reuniao.setParticipantes(participantes);
-        } else {
-            reuniao.setParticipantes(colegiado.getMembros());
+        List<Long> membrosIds = (colegiado.getMembros() == null) ? List.of() : colegiado.getMembros().stream().map(Professor::getId).toList();
+        boolean temFora = reuniao.getParticipantes().stream().anyMatch(p -> !membrosIds.contains(p.getId()));
+        if (temFora) {
+            throw new IllegalArgumentException("Participante não pertence ao colegiado.");
         }
 
         reuniaoRepository.save(reuniao);
