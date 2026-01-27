@@ -34,8 +34,7 @@ public class ReuniaoService {
             }
         }
     }
-
-    // ✅ NOVO: paginado
+    
     @Transactional(readOnly = true)
     public Page<Reuniao> listarReunioesDoProfessor(Long professorId, StatusReuniao status, Pageable pageable) {
         return reuniaoRepository.findVisiveisParaProfessor(professorId, status, pageable);
