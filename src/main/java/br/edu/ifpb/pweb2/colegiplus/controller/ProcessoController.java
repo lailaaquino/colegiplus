@@ -133,7 +133,6 @@ public class ProcessoController {
     }
 
 
-
     @GetMapping("/novo")
     public ModelAndView formNovo(HttpSession session) {
         String tipo = (String) session.getAttribute("tipoUsuario");
