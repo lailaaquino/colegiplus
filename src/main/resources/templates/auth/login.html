@@ -1,15 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <title>Login - Colegi+</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}" />
   </head>
-  <body class="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
+  <body
+    class="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center"
+  >
     <div class="w-full max-w-md px-4">
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-8">
+      <div
+        class="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-8"
+      >
         <div class="mb-6 text-center">
           <h1 class="text-3xl font-bold tracking-tight">
             Colegi<span class="text-indigo-400">+</span>
@@ -19,20 +23,26 @@
           </p>
         </div>
 
-        <p th:if="${mensagem}"
-           th:text="${mensagem}"
-           class="mb-4 text-sm text-red-400 bg-red-950/40 border border-red-900/60 px-3 py-2 rounded-lg">
-        </p>
+        <div
+          th:if="${param.error}"
+          class="mb-4 text-sm text-red-400 bg-red-950/40 border border-red-900/60 px-3 py-2 rounded-lg"
+          role="alert"
+        >
+          Login e/ou senha inválidos!
+        </div>
 
-        <form th:action="@{/auth}" method="post" class="space-y-4">
+        <form th:action="@{/auth/login}" method="post" class="space-y-4">
           <div>
-            <label for="login" class="block text-sm font-medium text-slate-200 mb-1">
+            <label
+              for="login"
+              class="block text-sm font-medium text-slate-200 mb-1"
+            >
               Login
             </label>
             <input
               id="login"
               type="text"
-              name="login"
+              name="username"
               class="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Digite seu login"
               required
@@ -40,13 +50,16 @@
           </div>
 
           <div>
-            <label for="senha" class="block text-sm font-medium text-slate-200 mb-1">
+            <label
+              for="senha"
+              class="block text-sm font-medium text-slate-200 mb-1"
+            >
               Senha
             </label>
             <input
               id="senha"
               type="password"
-              name="senha"
+              name="password"
               class="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Digite sua senha"
               required
@@ -55,7 +68,8 @@
 
           <button
             type="submit"
-            class="mt-2 inline-flex w-full items-center justify-center rounded-full bg-indigo-500 px-4 py-2.5 text-sm font-medium text-white shadow hover:bg-indigo-400 transition">
+            class="mt-2 inline-flex w-full items-center justify-center rounded-full bg-indigo-500 px-4 py-2.5 text-sm font-medium text-white shadow hover:bg-indigo-400 transition"
+          >
             Entrar
           </button>
         </form>
