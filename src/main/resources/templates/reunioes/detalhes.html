@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colegi+ - Detalhes da Reunião</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}" />
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <th:block th:replace="~{header :: menu}"></th:block>
+
+  <main class="mx-auto max-w-6xl px-4 py-8 sm:py-10">
+    <section class="mb-6 sm:mb-8">
+      <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/60 shadow-xl shadow-black/30 ring-1 ring-white/5">
+        <div class="p-5 sm:p-7">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Detalhes da <span class="text-indigo-300">Reunião</span>
+                <span class="text-indigo-200" th:text="'#' + ${reuniao.id}"></span>
+              </h1>
+
+              <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-300/90">
+                <span class="inline-flex items-center gap-2 rounded-full bg-slate-950/60 px-3 py-1 ring-1 ring-white/5">
+                  <span class="text-slate-400">Data:</span>
+                  <span class="text-slate-100"
+                        th:text="${reuniao.data != null ? #dates.format(reuniao.data, 'dd/MM/yyyy HH:mm') : '-'}"></span>
+                </span>
+
+                <span class="inline-flex items-center gap-2 rounded-full bg-slate-950/60 px-3 py-1 ring-1 ring-white/5">
+                  <span class="text-slate-400">Colegiado:</span>
+                  <span class="text-slate-100"
+                        th:text="${reuniao.colegiado != null ? reuniao.colegiado.nome : '-'}"></span>
+                </span>
+
+                <span class="inline-flex items-center gap-2 rounded-full bg-slate-950/60 px-3 py-1 ring-1 ring-white/5">
+                  <span class="text-slate-400">Participantes:</span>
+                  <span class="text-slate-100"
+                        th:text="${reuniao.participantes != null ? reuniao.participantes.size() : 0}"></span>
+                </span>
+
+                <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 ring-1"
+                      th:classappend="${reuniao.status.name() == 'EM_JULGAMENTO'
+                          ? 'bg-emerald-900/25 text-emerald-200 ring-emerald-400/20'
+                          : (reuniao.status.name() == 'PROGRAMADA'
+                            ? 'bg-amber-900/20 text-amber-200 ring-amber-400/20'
+                            : 'bg-slate-900/50 text-slate-200 ring-white/10')}">
+                  <span class="text-slate-400">Status:</span>
+                  <span class="font-semibold" th:text="${reuniao.status}"></span>
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+              <a th:href="@{/reunioes}"
+                 class="inline-flex items-center justify-center rounded-xl bg-slate-950/70 px-4 py-2 text-sm font-semibold text-slate-100 ring-1 ring-white/10 hover:bg-slate-950 hover:ring-white/20">
+                Voltar
+              </a>
+
+              <span th:if="${podeVotar}"
+                    class="inline-flex items-center rounded-xl bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-200 ring-1 ring-emerald-400/20">
+                Votação aberta
+              </span>
+
+              <span th:if="${!podeVotar}"
+                    class="inline-flex items-center rounded-xl bg-slate-500/10 px-3 py-2 text-xs font-bold text-slate-200 ring-1 ring-white/10">
+                Votação fechada
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-5 space-y-3">
+            <div th:if="${mensagem}"
+                 class="rounded-2xl bg-emerald-500/10 px-4 py-3 text-emerald-100 ring-1 ring-emerald-400/20"
+                 th:text="${mensagem}"></div>
+
+            <div th:if="${mensagemErro}"
+                 class="rounded-2xl bg-rose-500/10 px-4 py-3 text-rose-100 ring-1 ring-rose-400/20"
+                 th:text="${mensagemErro}"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-6 sm:mb-8">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div class="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-900/60 p-5 shadow-lg shadow-black/25 ring-1 ring-white/5">
+          <p class="text-sm text-slate-400">Processos na pauta</p>
+          <p class="mt-2 text-3xl font-extrabold tracking-tight"
+             th:text="${reuniao.processos != null ? reuniao.processos.size() : 0}"></p>
+        </div>
+
+        <div class="rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950/40 p-5 shadow-lg shadow-black/25 ring-1 ring-white/5">
+          <p class="text-sm text-slate-400">Seus votos nesta reunião</p>
+          <p class="mt-2 text-3xl font-extrabold tracking-tight"
+             th:text="${meusVotos != null ? meusVotos.size() : 0}"></p>
+        </div>
+
+        <div class="rounded-3xl bg-gradient-to-br from-slate-900 to-slate-900/60 p-5 shadow-lg shadow-black/25 ring-1 ring-white/5">
+          <p class="text-sm text-slate-400">Status</p>
+          <p class="mt-2 text-2xl font-extrabold tracking-tight" th:text="${reuniao.status}"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-6">
+      <div class="rounded-3xl bg-slate-900/70 p-5 shadow-lg shadow-black/25 ring-1 ring-white/5">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 class="text-xl font-bold">Processos da pauta</h2>
+
+          <p class="text-sm text-slate-400" th:if="${podeVotar}">
+            Você pode votar em cada processo (e atualizar enquanto a sessão estiver em julgamento).
+          </p>
+          <p class="text-sm text-slate-400" th:if="${!podeVotar}">
+            A sessão não está em julgamento. A votação fica indisponível.
+          </p>
+        </div>
+
+        <p class="mt-3 text-slate-400"
+           th:if="${reuniao.processos == null || reuniao.processos.isEmpty()}">
+          Nenhum processo na pauta.
+        </p>
+      </div>
+    </section>
+
+    <section class="space-y-6" th:if="${reuniao.processos != null && !reuniao.processos.isEmpty()}">
+
+      <article class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900/60 shadow-xl shadow-black/25 ring-1 ring-white/5 rounded-[20px] bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50"
+                style="
+                            width: 100% !important;
+                            max-width: 100% !important;
+                            margin: 0 auto 24px auto !important;
+                            padding: 32px !important;
+                            border-radius: 20px !important;
+                            background: linear-gradient(135deg, #0f172a, #020617) !important;
+                            box-shadow: 0 20px 40px rgba(0,0,0,.45) !important;
+                            display: block !important;
+                        "           
+                th:each="p : ${reuniao.processos}">
+        <div class="p-5 sm:p-7">
+          <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+            <div class="min-w-0 space-y-4">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-lg sm:text-xl font-extrabold">
+                  Processo <span class="text-indigo-300" th:text="${p.numero}"></span>
+                </h3>
+
+                <span th:if="${p.relator != null && professorLogado.id == p.relator.id}"
+                      class="inline-flex items-center rounded-full bg-indigo-500/15 px-3 py-1 text-xs font-bold text-indigo-200 ring-1 ring-indigo-400/20">
+                  Você é o relator
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div class="rounded-2xl bg-slate-950/50 p-4 ring-1 ring-white/5">
+                  <p class="text-xs uppercase tracking-wide text-slate-500">Assunto</p>
+                  <p class="mt-1 font-semibold text-slate-100"
+                     th:text="${p.assunto != null ? p.assunto.nome : '-'}"></p>
+                </div>
+
+                <div class="rounded-2xl bg-slate-950/50 p-4 ring-1 ring-white/5">
+                  <p class="text-xs uppercase tracking-wide text-slate-500">Interessado</p>
+                  <p class="mt-1 font-semibold text-slate-100"
+                     th:text="${p.interessado != null ? p.interessado.nome : '-'}"></p>
+                </div>
+
+                <div class="rounded-2xl bg-slate-950/50 p-4 ring-1 ring-white/5">
+                  <p class="text-xs uppercase tracking-wide text-slate-500">Relator</p>
+                  <p class="mt-1 font-semibold text-slate-100"
+                     th:text="${p.relator != null ? p.relator.nome : 'Não definido'}"></p>
+                </div>
+              </div>
+
+              <div class="rounded-2xl bg-slate-950/40 p-4 ring-1 ring-white/5">
+                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Requerimento</p>
+                <p class="whitespace-pre-line text-sm leading-relaxed text-slate-200"
+                   th:text="${p.textoRequerimento}"></p>
+              </div>
+            </div>
+
+            <div class="w-full md:w-72">
+              <div class="rounded-3xl bg-slate-950/55 p-5 ring-1 ring-white/10">
+                <p class="text-xs uppercase tracking-wide text-slate-500 mb-3">Seu status</p>
+
+                <div th:if="${meusVotos[p.id] != null}" class="space-y-2">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-400">Decisão</span>
+                    <span class="font-extrabold text-slate-100"
+                          th:text="${meusVotos[p.id].decisao != null ? meusVotos[p.id].decisao.name() : '—'}"></span>
+                  </div>
+
+                  <div class="text-xs text-slate-500"
+                       th:if="${meusVotos[p.id].justificativa != null && !#strings.isEmpty(meusVotos[p.id].justificativa)}">
+                    Com justificativa
+                  </div>
+                </div>
+
+                <div th:if="${meusVotos[p.id] == null && p.relator != null && professorLogado.id == p.relator.id}"
+                     class="space-y-2">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-400">Decisão</span>
+                    <span class="font-extrabold text-slate-100"
+                          th:text="${p.decisaoRelator != null ? p.decisaoRelator.name() : '—'}"></span>
+                  </div>
+
+                  <div class="text-xs text-slate-500" th:if="${p.decisaoRelator != null}">
+                    Registrado como relator
+                  </div>
+                </div>
+
+                <div th:if="${meusVotos[p.id] == null && !(p.relator != null && professorLogado.id == p.relator.id)}"
+                     class="text-sm text-slate-400">
+                  Você ainda não votou.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6" th:if="${podeVotar}">
+            <div th:if="${p.relator != null && professorLogado.id == p.relator.id}"
+                 class="rounded-3xl bg-indigo-500/10 p-5 sm:p-6 ring-1 ring-indigo-400/20">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+                <div>
+                  <h4 class="text-lg font-extrabold text-indigo-100">Parecer do Relator</h4>
+                  <p class="text-sm text-slate-300">
+                    Defina sua decisão e, se quiser, anexe o PDF do parecer.
+                  </p>
+                </div>
+
+                <span class="inline-flex items-center rounded-xl bg-indigo-600/20 px-3 py-2 text-xs font-bold text-indigo-100 ring-1 ring-indigo-400/20">
+                  Relator
+                </span>
+              </div>
+
+              <form th:action="@{/reunioes/{rid}/processos/{pid}/votar(rid=${reuniao.id}, pid=${p.id})}"
+                    method="post"
+                    enctype="multipart/form-data"
+                    class="grid gap-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label class="flex items-center gap-3 rounded-2xl bg-slate-950/50 px-4 py-3 ring-1 ring-white/10 hover:ring-indigo-400/25">
+                    <input type="radio" name="decisao" value="DEFERIMENTO" required
+                           class="h-4 w-4 accent-indigo-500"
+                           th:checked="${(meusVotos[p.id] != null && meusVotos[p.id].decisao != null && meusVotos[p.id].decisao.name() == 'DEFERIMENTO')
+                                      || (meusVotos[p.id] == null && p.decisaoRelator != null && p.decisaoRelator.name() == 'DEFERIMENTO')}" />
+                    <span class="font-bold">Deferir</span>
+                  </label>
+
+                  <label class="flex items-center gap-3 rounded-2xl bg-slate-950/50 px-4 py-3 ring-1 ring-white/10 hover:ring-indigo-400/25">
+                    <input type="radio" name="decisao" value="INDEFERIMENTO" required
+                           class="h-4 w-4 accent-indigo-500"
+                           th:checked="${(meusVotos[p.id] != null && meusVotos[p.id].decisao != null && meusVotos[p.id].decisao.name() == 'INDEFERIMENTO')
+                                      || (meusVotos[p.id] == null && p.decisaoRelator != null && p.decisaoRelator.name() == 'INDEFERIMENTO')}" />
+                    <span class="font-bold">Indeferir</span>
+                  </label>
+                </div>
+
+                <div class="grid gap-2">
+                  <label class="text-sm font-semibold text-slate-200">
+                    Arquivo do parecer (PDF) <span class="text-xs text-slate-400">(opcional)</span>
+                  </label>
+                  <input type="file" name="parecerFile" accept="application/pdf"
+                         class="w-full rounded-2xl bg-slate-950/50 px-3 py-2 text-slate-100 ring-1 ring-white/10 file:mr-3 file:rounded-xl file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-indigo-500" />
+                  <p class="text-xs text-slate-400">
+                    Se não anexar, será salvo apenas decisão + justificativa.
+                  </p>
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-1">
+                  <p class="text-xs text-slate-400">
+                    Você pode atualizar enquanto a reunião estiver em julgamento.
+                  </p>
+
+                  <button type="submit"
+                          class="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-500">
+                    Salvar parecer
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div th:if="${p.relator == null || professorLogado.id != p.relator.id}"
+                 class="rounded-3xl bg-slate-950/35 p-5 sm:p-6 ring-1 ring-white/10 mt-0">
+              <div class="mb-4">
+                <h4 class="text-lg font-extrabold">Seu voto</h4>
+                <p class="text-sm text-slate-400">
+                  Escolha a decisão e, se quiser, adicione uma justificativa.
+                </p>
+              </div>
+
+              <form th:action="@{/reunioes/{rid}/processos/{pid}/votar(rid=${reuniao.id}, pid=${p.id})}"
+                    method="post"
+                    enctype="multipart/form-data"
+                    class="grid gap-4">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label class="flex items-center gap-3 rounded-2xl bg-slate-950/50 px-4 py-3 ring-1 ring-white/10 hover:ring-indigo-400/20">
+                    <input type="radio" name="decisao" value="DEFERIMENTO" required
+                           class="h-4 w-4 accent-indigo-500"
+                           th:checked="${meusVotos[p.id] != null && meusVotos[p.id].decisao != null && meusVotos[p.id].decisao.name() == 'DEFERIMENTO'}" />
+                    <span class="font-bold">Deferir</span>
+                  </label>
+
+                  <label class="flex items-center gap-3 rounded-2xl bg-slate-950/50 px-4 py-3 ring-1 ring-white/10 hover:ring-indigo-400/20">
+                    <input type="radio" name="decisao" value="INDEFERIMENTO" required
+                           class="h-4 w-4 accent-indigo-500"
+                           th:checked="${meusVotos[p.id] != null && meusVotos[p.id].decisao != null && meusVotos[p.id].decisao.name() == 'INDEFERIMENTO'}" />
+                    <span class="font-bold">Indeferir</span>
+                  </label>
+                </div>
+
+                <div class="grid gap-2">
+                  <label class="text-sm font-semibold text-slate-200">Justificativa (opcional)</label>
+                  <textarea name="justificativa"
+                            rows="4"
+                            maxlength="1000"
+                            class="w-full rounded-2xl bg-slate-950/50 p-4 text-slate-100 placeholder:text-slate-600 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                            placeholder="Justificativa (opcional)"
+                            th:text="${meusVotos[p.id] != null ? meusVotos[p.id].justificativa : ''}"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end pt-1">
+                  <button type="submit"
+                          class="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-500">
+                    Salvar voto
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="mt-6 text-sm text-slate-400" th:if="${!podeVotar}">
+            Votação disponível apenas quando a reunião estiver em <strong class="text-slate-200">EM_JULGAMENTO</strong>.
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

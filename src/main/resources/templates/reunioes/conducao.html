@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colegi+ - Condução da Sessão</title>
+  <link rel="stylesheet" th:href="@{/css/tailwind.css}" />
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <th:block th:replace="~{header :: menu}"></th:block>
+
+  <main class="mx-auto max-w-6xl px-4 py-8 sm:py-10">
+
+    <section class="mb-6 sm:mb-8">
+      <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/60 shadow-xl shadow-black/30 ring-1 ring-white/5">
+        <div class="p-5 sm:p-7">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                Condução da Sessão <span class="text-indigo-200" th:text="'#' + ${reuniao.id}"></span>
+              </h1>
+
+              <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-300/90">
+                <span class="inline-flex items-center gap-2 rounded-full bg-slate-950/60 px-3 py-1 ring-1 ring-white/5">
+                  <span class="text-slate-400">Data:</span>
+                  <span class="text-slate-100"
+                        th:text="${reuniao.data != null ? #dates.format(reuniao.data, 'dd/MM/yyyy HH:mm') : '-'}"></span>
+                </span>
+
+                <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-emerald-200 ring-1 ring-emerald-400/20">
+                  <span class="text-slate-400">Status:</span>
+                  <span class="font-bold" th:text="${reuniao.status}"></span>
+                </span>
+              </div>
+            </div>
+
+            <a th:href="@{/reunioes}"
+               class="inline-flex items-center justify-center rounded-xl bg-slate-950/70 px-4 py-2 text-sm font-semibold text-slate-100 ring-1 ring-white/10 hover:bg-slate-950 hover:ring-white/20">
+              Voltar
+            </a>
+          </div>
+
+          <div class="mt-5 space-y-3">
+            <div th:if="${mensagem}"
+                 class="rounded-2xl bg-emerald-500/10 px-4 py-3 text-emerald-100 ring-1 ring-emerald-400/20"
+                 th:text="${mensagem}"></div>
+
+            <div th:if="${mensagemErro}"
+                 class="rounded-2xl bg-rose-500/10 px-4 py-3 text-rose-100 ring-1 ring-rose-400/20"
+                 th:text="${mensagemErro}"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section th:if="${reuniao.processos == null || reuniao.processos.isEmpty()}">
+      <div class="rounded-3xl bg-slate-900/70 p-6 shadow-lg shadow-black/25 ring-1 ring-white/5 text-slate-300">
+        Nenhum processo na pauta.
+      </div>
+    </section>
+
+    <section class="space-y-6" th:if="${reuniao.processos != null && !reuniao.processos.isEmpty()}">
+
+      <article class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900/60 shadow-xl shadow-black/25 ring-1 ring-white/5 rounded-[20px] bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/50"
+            style="
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto 24px auto !important;
+                padding: 32px !important;
+                border-radius: 20px !important;
+                background: linear-gradient(135deg, #0f172a, #020617) !important;
+                box-shadow: 0 20px 40px rgba(0,0,0,.45) !important;
+                display: block !important;
+            "  
+            th:each="p : ${reuniao.processos}">
+        <div class="p-5 sm:p-7">
+
+          <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div class="min-w-0 space-y-4">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-lg sm:text-xl font-extrabold">
+                  Processo <span class="text-indigo-300" th:text="${p.numero}"></span>
+                </h3>
+
+                <span class="inline-flex items-center rounded-full bg-slate-950/60 px-3 py-1 text-xs font-bold text-slate-200 ring-1 ring-white/10">
+                  Apregoamento
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div class="rounded-2xl bg-slate-950/50 p-4 ring-1 ring-white/5">
+                  <p class="text-xs uppercase tracking-wide text-slate-500">Relator</p>
+                  <p class="mt-1 font-semibold text-slate-100"
+                     th:text="${p.relator != null ? p.relator.nome : '-'}"></p>
+                </div>
+
+                <div class="rounded-2xl bg-slate-950/50 p-4 ring-1 ring-white/5">
+                  <p class="text-xs uppercase tracking-wide text-slate-500">Assunto</p>
+                  <p class="mt-1 font-semibold text-slate-100"
+                     th:text="${p.assunto != null ? p.assunto.nome : '-'}"></p>
+                </div>
+
+                <div class="rounded-2xl bg-slate-950/50 p-4 ring-1 ring-white/5">
+                  <p class="text-xs uppercase tracking-wide text-slate-500">Interessado</p>
+                  <p class="mt-1 font-semibold text-slate-100"
+                     th:text="${p.interessado != null ? p.interessado.nome : '-'}"></p>
+                </div>
+              </div>
+
+              <div class="rounded-2xl bg-slate-950/40 p-4 ring-1 ring-white/5">
+                <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Requerimento</p>
+                <p class="whitespace-pre-line text-sm leading-relaxed text-slate-200"
+                   th:text="${p.textoRequerimento}"></p>
+              </div>
+            </div>
+
+            <div class="w-full lg:w-80 space-y-3">
+              <div class="rounded-3xl bg-slate-950/55 p-5 ring-1 ring-white/10">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-400">Decisão do relator</span>
+                  <span class="font-extrabold text-slate-100"
+                        th:text="${p.decisaoRelator != null ? p.decisaoRelator.name() : '—'}"></span>
+                </div>
+              </div>
+
+              <div class="rounded-3xl bg-slate-950/55 p-5 ring-1 ring-white/10">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-slate-400">Resultado atual</span>
+                  <span class="font-extrabold text-slate-100"
+                        th:text="${p.resultadoColegiado != null ? p.resultadoColegiado.name() : '—'}"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form th:action="@{/reunioes/{rid}/processos/{pid}/apregoar(rid=${reuniao.id}, pid=${p.id})}"
+                method="post"
+                class="mt-6">
+
+            <div class="rounded-3xl bg-slate-950/35 p-4 sm:p-5 ring-1 ring-white/10">
+              <div class="mb-4">
+                <p class="text-sm text-slate-300 font-semibold">
+                  Marque o voto de cada membro
+                </p>
+                <p class="text-xs text-slate-400">
+                  O voto do professor é apenas leitura. Você marca: <strong>Com relator</strong>, <strong>Divergente</strong> ou <strong>Ausente</strong>.
+                </p>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead>
+                    <tr class="text-xs uppercase tracking-wide text-slate-400">
+                      <th class="px-4 py-3 text-left">Membro</th>
+                      <th class="px-4 py-3 text-center">Voto do professor</th>
+                      <th class="px-4 py-3 text-center">Marcação do coordenador</th>
+                    </tr>
+                  </thead>
+
+                  <tbody class="divide-y divide-white/5">
+                    <tr th:each="m : ${participantes}"
+                        th:if="${p.relator == null || m.id != p.relator.id}"
+                        class="odd:bg-white/0 even:bg-white/5">
+
+                      <td class="px-4 py-4">
+                        <div class="font-semibold text-slate-100" th:text="${m.nome}"></div>
+                      </td>
+
+                      <td class="px-4 py-4 text-center font-extrabold">
+                        <span th:if="${votosPorProcesso[p.id][m.id] != null}">
+                          <span th:if="${votosPorProcesso[p.id][m.id].decisao != null}"
+                                th:text="${votosPorProcesso[p.id][m.id].decisao.name()}"></span>
+                          <span th:if="${votosPorProcesso[p.id][m.id].decisao == null}" class="text-slate-400">—</span>
+                        </span>
+                        <span th:if="${votosPorProcesso[p.id][m.id] == null}" class="text-slate-400">—</span>
+                      </td>
+
+                      <td class="px-4 py-4">
+                        <div class="flex flex-wrap items-center justify-center gap-3">
+                          <label class="flex items-center gap-2 rounded-full bg-slate-900/60 px-4 py-2 text-xs font-bold text-slate-200 ring-1 ring-white/10 hover:ring-indigo-400/20">
+                            <input type="radio"
+                                   class="h-4 w-4 accent-indigo-500"
+                                   th:name="${'marcacao_' + m.id}"
+                                   value="COM_RELATOR"
+                                   th:checked="${votosPorProcesso[p.id][m.id] != null
+                                      && votosPorProcesso[p.id][m.id].tipoVoto != null
+                                      && votosPorProcesso[p.id][m.id].tipoVoto.name() == 'COM_RELATOR'}">
+                            <span>Com relator</span>
+                          </label>
+
+                          <label class="flex items-center gap-2 rounded-full bg-slate-900/60 px-4 py-2 text-xs font-bold text-slate-200 ring-1 ring-white/10 hover:ring-indigo-400/20">
+                            <input type="radio"
+                                   class="h-4 w-4 accent-indigo-500"
+                                   th:name="${'marcacao_' + m.id}"
+                                   value="DIVERGENTE"
+                                   th:checked="${votosPorProcesso[p.id][m.id] != null
+                                      && votosPorProcesso[p.id][m.id].tipoVoto != null
+                                      && votosPorProcesso[p.id][m.id].tipoVoto.name() == 'DIVERGENTE'}">
+                            <span>Divergente</span>
+                          </label>
+
+                          <label class="flex items-center gap-2 rounded-full bg-slate-900/60 px-4 py-2 text-xs font-bold text-slate-200 ring-1 ring-white/10 hover:ring-indigo-400/20">
+                            <input type="radio"
+                                   class="h-4 w-4 accent-indigo-500"
+                                   th:name="${'marcacao_' + m.id}"
+                                   value="AUSENTE"
+                                   th:checked="${votosPorProcesso[p.id][m.id] != null && votosPorProcesso[p.id][m.id].ausente}">
+                            <span>Ausente</span>
+                          </label>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-xs text-slate-400">
+                  Ao apregoar, o sistema salva as marcações e calcula o resultado automaticamente.
+                </p>
+
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-extrabold text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-500">
+                  Apregoar e calcular resultado
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </article>
+
+    </section>
+  </main>
+</body>
+</html>
