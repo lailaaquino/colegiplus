@@ -1,23 +1,18 @@
 package br.edu.ifpb.pweb2.colegiplus.model;
-
 import java.io.Serializable;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @Entity
+@Table(
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_voto_professor_reuniao_processo",
+        columnNames = {"professor_id", "reuniao_id", "processo_id"}
+    )
+)
 public class Voto implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -26,17 +21,28 @@ public class Voto implements Serializable {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private TipoVoto tipo;
+    @Column(nullable = true)
+    private TipoDecisao decisao;
 
-    @ManyToOne
+    @Column(length = 1000)
+    private String justificativa;
+
+    @Column(nullable = false)
+    private Boolean ausente = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private TipoVoto tipoVoto;
+
+    @ManyToOne(optional = false)
     @JoinColumn(name = "professor_id")
     private Professor professor;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "processo_id")
     private Processo processo;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "reuniao_id")
     private Reuniao reuniao;
 }

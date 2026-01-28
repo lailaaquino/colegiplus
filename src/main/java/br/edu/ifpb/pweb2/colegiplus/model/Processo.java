@@ -3,6 +3,9 @@ package br.edu.ifpb.pweb2.colegiplus.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,16 +46,18 @@ public class Processo implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date dataDistribuicao;
 
+    @Enumerated(EnumType.STRING)
+    private TipoDecisao decisaoRelator;
+
+    @Column(name = "parecer_arquivo", columnDefinition = "bytea")
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    private byte[] parecer;
+
     @Temporal(TemporalType.DATE)
     private Date dataParecer;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "parecer", columnDefinition = "bytea")
-    private byte[] parecer;
-
     @Enumerated(EnumType.STRING)
-    private TipoDecisao decisaoRelator;
+    private TipoDecisao resultadoColegiado;
 
     @Enumerated(EnumType.STRING)
     private StatusProcesso status;
@@ -78,10 +83,7 @@ public class Processo implements Serializable {
     @Column(name="requerimento_content_type")
     private String requerimentoContentType;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "requerimento_pdf", columnDefinition = "bytea")
+    @JdbcTypeCode(SqlTypes.VARBINARY)
     private byte[] requerimentoPdf;
-
-
 }

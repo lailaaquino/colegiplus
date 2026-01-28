@@ -22,7 +22,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@ToString(exclude = {"reunioes"}) // Exclui a coleção do toString()
+@ToString(exclude = {"reunioes"})
 public class Colegiado implements Serializable {
     private static final long serialVersionUID = 1L;
 
