@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +39,6 @@ import br.edu.ifpb.pweb2.colegiplus.repository.VotoRepository;
 import br.edu.ifpb.pweb2.colegiplus.service.ReuniaoService;
 import br.edu.ifpb.pweb2.colegiplus.service.VotoService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/reunioes")
@@ -66,16 +66,15 @@ public class ReuniaoController {
     private VotoRepository votoRepository;
 
     @GetMapping("/nova")
-    public ModelAndView formNovaSessao(HttpSession session) {
-        Professor coordenador = (Professor) session.getAttribute("usuario");
-        if (coordenador == null) return new ModelAndView("redirect:/auth");
+    public ModelAndView formNovaSessao(Authentication authentication, RedirectAttributes attr) {
+        Professor coordenador = professorRepository.findByLogin(authentication.getName());
 
         List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coordenador);
         if (colegiados == null || colegiados.isEmpty()) {
-            ModelAndView mv = new ModelAndView("redirect:/reunioes");
-            session.setAttribute("mensagem", "Você não está como coordenador de nenhum colegiado.");
-            return mv;
+            attr.addFlashAttribute("mensagemErro", "Você não está como coordenador de nenhum colegiado.");
+            return new ModelAndView("redirect:/reunioes");
         }
+
         List<Professor> membros = colegiados.stream()
                 .filter(c -> c.getMembros() != null)
                 .flatMap(c -> c.getMembros().stream())
@@ -89,141 +88,94 @@ public class ReuniaoController {
         return mv;
     }
 
-
     @GetMapping
     public ModelAndView listar(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(value = "status", required = false) String status,
-            HttpSession session
-    ) {
+            Authentication authentication) {
         ModelAndView mv = new ModelAndView("reunioes/list");
-
-        Professor professor = (Professor) session.getAttribute("usuario");
-        if (professor == null) return new ModelAndView("redirect:/auth");
+        Professor professor = professorRepository.findByLogin(authentication.getName());
 
         StatusReuniao statusEnum = null;
         if (status != null && !status.isBlank() && !"null".equals(status)) {
             try {
                 statusEnum = StatusReuniao.valueOf(status);
             } catch (IllegalArgumentException ignored) {
-                statusEnum = null;
             }
         }
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("data").descending());
+        Page<Reuniao> reunioes = reuniaoService.listarReunioesDoProfessor(professor.getId(), statusEnum, pageable);
 
-        Page<Reuniao> reunioes = reuniaoService.listarReunioesDoProfessor(
-                professor.getId(),
-                statusEnum,
-                pageable
-        );
-
-        NavPage navPage = NavPageBuilder.newNavPage(
-                reunioes.getNumber() + 1,
-                reunioes.getTotalElements(),
-                reunioes.getTotalPages(),
-                size
-        );
+        NavPage navPage = NavPageBuilder.newNavPage(reunioes.getNumber() + 1, reunioes.getTotalElements(),
+                reunioes.getTotalPages(), size);
 
         mv.addObject("reunioes", reunioes);
         mv.addObject("statusSelecionado", statusEnum);
-
         mv.addObject("navPage", navPage);
-
-        String resourcePath = "reunioes" + (statusEnum != null ? "?status=" + statusEnum.name() : "");
-        mv.addObject("resourcePath", resourcePath);
+        mv.addObject("resourcePath", "reunioes" + (statusEnum != null ? "?status=" + statusEnum.name() : ""));
 
         return mv;
     }
-
 
     @PostMapping
     public String salvarSessao(
             Reuniao reuniao,
             @RequestParam(required = false) List<Long> processosIds,
             @RequestParam(required = false) List<Long> participantesIds,
-            HttpSession session,
-            RedirectAttributes attr
-    ) {
-        Professor coordenador = (Professor) session.getAttribute("usuario");
-        if (coordenador == null) return "redirect:/auth";
+            Authentication authentication,
+            RedirectAttributes attr) {
+        Professor coordenador = professorRepository.findByLogin(authentication.getName());
 
         if (processosIds == null || processosIds.isEmpty() || participantesIds == null || participantesIds.isEmpty()) {
-            attr.addFlashAttribute("mensagemErro", "Selecione ao menos um processo e um participante para agendar a reunião.");
+            attr.addFlashAttribute("mensagemErro", "Selecione ao menos um processo e um participante.");
             return "redirect:/reunioes/nova";
         }
 
         List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coordenador);
-        if (colegiados == null || colegiados.isEmpty()) {
+        if (colegiados == null || colegiados.isEmpty())
             return "redirect:/reunioes";
-        }
 
         Colegiado colegiado = colegiados.get(0);
         reuniao.setColegiado(colegiado);
         reuniao.setStatus(StatusReuniao.PROGRAMADA);
-
         reuniao.setProcessos(processoRepository.findAllById(processosIds));
 
         List<Professor> participantes = professorRepository.findAllById(participantesIds);
-        boolean jaTem = participantes.stream().anyMatch(p -> p.getId().equals(coordenador.getId()));
-        if (!jaTem) participantes.add(coordenador);
-
+        if (participantes.stream().noneMatch(p -> p.getId().equals(coordenador.getId()))) {
+            participantes.add(coordenador);
+        }
         reuniao.setParticipantes(participantes);
-
-        List<Long> permitidos = new java.util.ArrayList<>();
-        if (colegiado.getMembros() != null) {
-            permitidos.addAll(colegiado.getMembros().stream().map(Professor::getId).toList());
-        }
-        if (colegiado.getCoordenador() != null) {
-            permitidos.add(colegiado.getCoordenador().getId());
-        }
-
-        boolean temFora = reuniao.getParticipantes().stream()
-                .anyMatch(p -> !permitidos.contains(p.getId()));
-
-        if (temFora) {
-            throw new IllegalArgumentException("Participante não pertence ao colegiado.");
-        }
 
         reuniaoRepository.save(reuniao);
         return "redirect:/reunioes";
     }
 
-
     @PostMapping("/{id}/iniciar")
     public String iniciarSessao(@PathVariable("id") Long id, RedirectAttributes attr) {
         try {
-            if (id == null){
-                throw new IllegalArgumentException("ID da reunião não pode ser nulo.");
-            }
             reuniaoService.iniciarSessao(id);
             attr.addFlashAttribute("mensagem", "Sessão de julgamento iniciada com sucesso!");
-        } catch (IllegalStateException e) {
-            attr.addFlashAttribute("mensagemErro", e.getMessage());
         } catch (Exception e) {
-            attr.addFlashAttribute("mensagemErro", "Erro ao iniciar sessão: " + e.getMessage());
+            attr.addFlashAttribute("mensagemErro", e.getMessage());
         }
         return "redirect:/reunioes";
     }
 
     @GetMapping("/{id}")
-    public ModelAndView detalhes(@PathVariable Long id, HttpSession session) {
-        Professor professor = (Professor) session.getAttribute("usuario");
-        if (professor == null) return new ModelAndView("redirect:/auth");
-
+    public ModelAndView detalhes(@PathVariable Long id, Authentication authentication) {
+        Professor professor = professorRepository.findByLogin(authentication.getName());
         Reuniao reuniao = reuniaoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Reunião não encontrada."));
+                .orElseThrow(() -> new RuntimeException("Reunião não encontrada."));
 
-        boolean participa = reuniao.getParticipantes() != null &&
-            reuniao.getParticipantes().stream().anyMatch(p -> p.getId().equals(professor.getId()));
-
-        if (!participa) return new ModelAndView("redirect:/reunioes");
+        boolean participa = reuniao.getParticipantes().stream().anyMatch(p -> p.getId().equals(professor.getId()));
+        if (!participa)
+            return new ModelAndView("redirect:/reunioes");
 
         ModelAndView mv = new ModelAndView("reunioes/detalhes");
         mv.addObject("reuniao", reuniao);
         mv.addObject("professorLogado", professor);
-
         mv.addObject("meusVotos", votoService.mapearVotosDoProfessorNaReuniao(professor.getId(), reuniao.getId()));
         mv.addObject("podeVotar", reuniao.getStatus() == StatusReuniao.EM_JULGAMENTO);
 
@@ -232,62 +184,27 @@ public class ReuniaoController {
 
     @PostMapping("/{reuniaoId}/processos/{processoId}/votar")
     public String votar(
-        @PathVariable Long reuniaoId,
-        @PathVariable Long processoId,
-        @RequestParam TipoDecisao decisao,
-        @RequestParam(required = false) String justificativa,
-        @RequestParam(required = false) MultipartFile parecerFile,
-        HttpSession session,
-        RedirectAttributes ra
-    ) {
-        Professor professor = (Professor) session.getAttribute("usuario");
-        if (professor == null) return "redirect:/auth";
-
+            @PathVariable Long reuniaoId,
+            @PathVariable Long processoId,
+            @RequestParam TipoDecisao decisao,
+            @RequestParam(required = false) String justificativa,
+            @RequestParam(required = false) MultipartFile parecerFile,
+            Authentication authentication,
+            RedirectAttributes ra) {
+        Professor professor = professorRepository.findByLogin(authentication.getName());
         try {
             votoService.votar(reuniaoId, processoId, professor.getId(), decisao, justificativa, parecerFile);
             ra.addFlashAttribute("mensagem", "Voto registrado com sucesso.");
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             ra.addFlashAttribute("mensagemErro", e.getMessage());
         }
-
         return "redirect:/reunioes/" + reuniaoId;
     }
 
-    @PostMapping("/{reuniaoId}/processos/{processoId}/membros/{professorId}/marcar")
-    public String marcarTipoVoto(
-            @PathVariable Long reuniaoId,
-            @PathVariable Long processoId,
-            @PathVariable Long professorId,
-            @RequestParam("marcacao") String marcacao,
-            HttpSession session,
-            RedirectAttributes ra
-    ) {
-        if (session.getAttribute("tipoUsuario") == null
-                || !"COORDENADOR".equals(session.getAttribute("tipoUsuario").toString())) {
-            return "redirect:/reunioes";
-        }
-
-        try {
-            votoService.marcarTipoVotoNaConducao(reuniaoId, processoId, professorId, marcacao);
-            ra.addFlashAttribute("mensagem", "Marcação atualizada.");
-        } catch (RuntimeException e) {
-            ra.addFlashAttribute("mensagemErro", e.getMessage());
-        }
-
-        return "redirect:/reunioes/" + reuniaoId + "/conducao";
-    }
-
-
-
     @GetMapping("/{id}/conducao")
-    public ModelAndView conduzir(@PathVariable Long id, HttpSession session) {
-        Professor usuario = (Professor) session.getAttribute("usuario");
-        if (usuario == null) return new ModelAndView("redirect:/auth");
-
-        Object tipoObj = session.getAttribute("tipoUsuario");
-        String tipoUsuario = (tipoObj == null) ? "" : tipoObj.toString();
-        if (!"COORDENADOR".equals(tipoUsuario)) return new ModelAndView("redirect:/reunioes");
-
+    public ModelAndView conduzir(@PathVariable Long id) {
+        // A proteção de ROLE_COORDENADOR agora deve estar no SecurityConfig
+        // (antmatchers)
         Reuniao reuniao = reuniaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reunião não encontrada."));
 
@@ -302,12 +219,8 @@ public class ReuniaoController {
                 .collect(Collectors.toMap(
                         Processo::getId,
                         p -> votoRepository.findByReuniaoIdAndProcessoId(reuniao.getId(), p.getId()).stream()
-                                .collect(Collectors.toMap(
-                                        v -> v.getProfessor().getId(),
-                                        Function.identity()
-                                ))
-                        , (a, b) -> b
-                ));
+                                .collect(Collectors.toMap(v -> v.getProfessor().getId(), Function.identity())),
+                        (a, b) -> b));
 
         ModelAndView mv = new ModelAndView("reunioes/conducao");
         mv.addObject("reuniao", reuniao);
@@ -316,28 +229,15 @@ public class ReuniaoController {
         return mv;
     }
 
-
     @PostMapping("/{reuniaoId}/processos/{processoId}/apregoar")
-    public String apregoar(
-            @PathVariable Long reuniaoId,
-            @PathVariable Long processoId,
-            HttpSession session,
-            HttpServletRequest request,
-            RedirectAttributes ra
-    ) {
-        if (session.getAttribute("tipoUsuario") == null
-                || !"COORDENADOR".equals(session.getAttribute("tipoUsuario").toString())) {
-            return "redirect:/reunioes";
-        }
-
+    public String apregoar(@PathVariable Long reuniaoId, @PathVariable Long processoId, HttpServletRequest request,
+            RedirectAttributes ra) {
         try {
             TipoDecisao resultado = reuniaoService.apregoarECalcularResultado(reuniaoId, processoId, request);
             ra.addFlashAttribute("mensagem", "Resultado calculado: " + resultado.name());
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             ra.addFlashAttribute("mensagemErro", e.getMessage());
         }
-
         return "redirect:/reunioes/" + reuniaoId + "/conducao";
     }
-
 }

@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt_BR" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -24,7 +26,7 @@
       <p th:text="${mensagem}"></p>
     </div>
 
-    <a th:href="@{/colegiados/form}">
+    <a sec:authorize="hasRole('ADMIN')" th:href="@{/colegiados/form}">
       <button
         type="button"
         class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow mb-6 transition"
@@ -41,7 +43,7 @@
             <th class="px-3 py-2 text-left align-middle">Nome do Colegiado</th>
             <th class="px-3 py-2 text-left align-middle">Coordenador</th>
             <th class="px-3 py-2 text-left align-middle">Membros</th>
-            <th class="px-3 py-2 text-left align-middle">Ações</th>
+            <th sec:authorize="hasRole('ADMIN')" class="px-3 py-2 text-left align-middle">Ações</th>
           </tr>
         </thead>
 
@@ -60,7 +62,7 @@
               <span th:text="${c.membros != null ? c.membros.size() : 0}"></span>
               <span> membros</span>
             </td>
-            <td class="px-3 py-2 text-left align-middle">
+            <td sec:authorize="hasRole('ADMIN')" class="px-3 py-2 text-left align-middle">
               <div class="flex gap-3">
                 <a
                   th:href="@{/colegiados/{id}/edit(id=${c.id})}"

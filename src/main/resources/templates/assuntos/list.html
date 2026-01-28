@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt_BR" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,7 +25,7 @@
       class="mb-4 p-3 bg-emerald-900/40 border border-emerald-700 rounded-lg text-emerald-300"
     ></p>
 
-    <div th:if="${session.tipoUsuario == 'ADMIN'}" class="mb-6">
+    <div sec:authorize="hasRole('ADMIN')" class="mb-6">
       <form th:action="@{/assuntos/form}" method="get">
         <button
           type="submit"
@@ -49,7 +51,7 @@
           <tr class="text-xs uppercase tracking-wide text-slate-400">
             <th class="px-3 py-2 text-left align-middle">ID</th>
             <th class="px-3 py-2 text-left align-middle">Nome do Assunto</th>
-            <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 text-left align-middle">
+            <th sec:authorize="hasRole('ADMIN')" class="px-3 py-2 text-left align-middle">
               Ações
             </th>
           </tr>
@@ -67,7 +69,7 @@
             <td class="px-3 py-2 text-left align-middle" th:text="${a.nome}"></td>
 
             <td
-              th:if="${session.tipoUsuario == 'ADMIN'}"
+              sec:authorize="hasRole('ADMIN')"
               class="px-3 py-2 text-left align-middle gap-4"
             >
               <a

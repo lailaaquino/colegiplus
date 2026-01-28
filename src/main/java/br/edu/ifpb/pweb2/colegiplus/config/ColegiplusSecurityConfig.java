@@ -27,12 +27,25 @@ public class ColegiplusSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/imagens/**", "/js/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/acesso-negado",
+                                "/css/**", "/imagens/**", "/js/**")
+                        .permitAll()
+                        .requestMatchers("/alunos/**").hasRole("ADMIN")
+                        .requestMatchers("/professores/**").hasRole("ADMIN")
+                        .requestMatchers("/colegiados/**").hasRole("ADMIN")
+                        .requestMatchers("/assuntos/**").hasRole("ADMIN")
+                        .requestMatchers("/home/**").authenticated()
+                        .requestMatchers("/processos/**").hasRole("PROFESSOR")
+                        .requestMatchers("/reunioes/**").hasAnyRole("PROFESSOR", "COORDENADOR"))
+
+
+
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .defaultSuccessUrl("/home", true)
                         .permitAll())
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/acesso-negado"))
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
                         .logoutSuccessUrl("/auth/login?logout")

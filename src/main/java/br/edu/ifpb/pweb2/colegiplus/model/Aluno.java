@@ -47,4 +47,7 @@ public class Aluno implements Serializable {
     @JoinColumn(name = "username")
     private User user;
 
+    @NotBlank(message = "A senha é obrigatória")
+    private String senha;
+
 }

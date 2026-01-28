@@ -20,7 +20,6 @@ import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
 import br.edu.ifpb.pweb2.colegiplus.service.ProfessorService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Controller
@@ -29,23 +28,13 @@ public class ProfessorController {
     
     @Autowired
     private ProfessorService professorService;
-    
-    private boolean isPermitidoGerenciar(HttpSession session) {
-        String tipo = (String) session.getAttribute("tipoUsuario");
-        return "ADMIN".equals(tipo); 
-    }
 
     @GetMapping({"", "/"})
     public ModelAndView listarProfessores(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "3") int size,
-            ModelAndView mv,
-            HttpSession session
+            ModelAndView mv
     ) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
-
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
         Page<Professor> professores = professorService.findAll(pageable);
 
@@ -63,13 +52,8 @@ public class ProfessorController {
         return mv;
     }
 
-    
     @GetMapping({"/form", "/{id}/edit"})
-    public ModelAndView mostrarFormulario(@PathVariable(required = false) Long id, ModelAndView modelAndView, HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
-        
+    public ModelAndView mostrarFormulario(@PathVariable(required = false) Long id, ModelAndView modelAndView) {
         Professor professor;
         if (id == null) {
             professor = new Professor(); 
@@ -87,18 +71,14 @@ public class ProfessorController {
 
     @PostMapping("/form")
     public ModelAndView salvarProfessor(@Valid Professor professor, BindingResult result, 
-                                      ModelAndView modelAndView, RedirectAttributes attr, 
-                                      HttpSession session) {
-        
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
+                                      ModelAndView modelAndView, RedirectAttributes attr) {
         
         if (result.hasErrors()) {
             modelAndView.setViewName("professores/form");
             return modelAndView;
         }
 
+        // Validações de duplicidade
         if (professor.getId() == null) { 
             if (professorService.existsByMatricula(professor.getMatricula())) {
                 result.rejectValue("matricula", "matricula.exists", "Esta matrícula já está cadastrada.");
@@ -126,24 +106,13 @@ public class ProfessorController {
         return modelAndView;
     }
     
-    
     @GetMapping("/{id}/delete")
-    public ModelAndView delete(@PathVariable Long id, ModelAndView mv, RedirectAttributes attr, HttpSession session) {
-        
-        String tipo = (String) session.getAttribute("tipoUsuario");
-        if (!"ADMIN".equals(tipo)) {
-            attr.addFlashAttribute("erro", "Você não tem permissão para realizar esta operação.");
-            mv.setViewName("redirect:/professores");
-            return mv;
-        }
-
+    public ModelAndView delete(@PathVariable Long id, ModelAndView mv, RedirectAttributes attr) {
         try {
             professorService.deleteById(id);
             attr.addFlashAttribute("mensagem", "Professor removido com sucesso!");
-            
         } catch (DataIntegrityViolationException e) {
-            attr.addFlashAttribute("erro", "Erro ao excluir: Este professor possui vínculos (processos, colegiados) e não pode ser removido.");
-            
+            attr.addFlashAttribute("erro", "Erro ao excluir: Este professor possui vínculos (processos, colegiados).");
         } catch (Exception e) {
             attr.addFlashAttribute("erro", "Erro inesperado ao tentar remover o professor.");
         }

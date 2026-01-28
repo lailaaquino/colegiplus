@@ -18,20 +18,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@ToString(exclude = {"processos", "colegiadosMembro", "colegiadosCoordenados"})
+@ToString(exclude = { "processos", "colegiadosMembro", "colegiadosCoordenados" })
 public class Professor implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank private String nome;
+    @NotBlank
+    private String nome;
     private String fone;
 
     @Column(unique = true, nullable = false)
@@ -41,18 +41,21 @@ public class Professor implements Serializable {
     private String login;
 
     @OneToOne
-    @JoinColumn(name = "username") 
+    @JoinColumn(name = "username")
     private User user;
 
     private boolean coordenador;
 
     @OneToMany(mappedBy = "relator")
     private List<Processo> processos;
-    
-    @ManyToMany(mappedBy = "membros") 
+
+    @ManyToMany(mappedBy = "membros")
     private List<Colegiado> colegiadosMembro;
 
     @OneToMany(mappedBy = "coordenador")
     private List<Colegiado> colegiadosCoordenados;
-    
+
+    @NotBlank(message = "A senha é obrigatória")
+    private String senha;
+
 }

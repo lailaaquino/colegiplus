@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt_BR" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +24,7 @@
        class="mb-6 p-3 bg-emerald-900/40 border border-emerald-700 rounded-lg text-emerald-300">
     </p>
 
-    <div th:if="${session.tipoUsuario == 'ADMIN'}" class="mb-6">
+    <div sec:authorize="hasRole('ADMIN')" class="mb-6">
         <a th:href="@{/alunos/form}"
            class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow transition">
             Novo Aluno
@@ -46,7 +48,7 @@
                     <th class="px-3 py-2 text-left align-middle">Matrícula</th>
                     <th class="px-3 py-2 text-left align-middle">Login</th>
                     <th class="px-3 py-2 text-left align-middle">Telefone</th>
-                    <th th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 text-left align-middle">Ações</th>
+                    <th sec:authorize="hasRole('ADMIN')" class="px-3 py-2 text-left align-middle">Ações</th>
                 </tr>
             </thead>
 
@@ -67,7 +69,7 @@
                     <td class="px-3 py-2 text-left align-middle" th:text="${aluno.login}"></td>
                     <td class="px-3 py-2 text-left align-middle" th:text="${aluno.telefone}"></td>
 
-                    <td th:if="${session.tipoUsuario == 'ADMIN'}" class="px-3 py-2 text-left align-middle whitespace-nowrap">
+                    <td sec:authorize="hasRole('ADMIN')" class="px-3 py-2 text-left align-middle whitespace-nowrap">
                         <a th:href="@{/alunos/{id}/edit(id=${aluno.id})}"
                            class="text-indigo-400 hover:text-indigo-300 transition mr-3">
                             Editar

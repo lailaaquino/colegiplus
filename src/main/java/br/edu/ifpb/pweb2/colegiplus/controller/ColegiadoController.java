@@ -18,7 +18,6 @@ import br.edu.ifpb.pweb2.colegiplus.model.Colegiado;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.service.ColegiadoService;
-import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/colegiados") 
@@ -27,22 +26,12 @@ public class ColegiadoController {
     @Autowired
     private ColegiadoService colegiadoService;
 
-    private boolean isPermitidoGerenciar(HttpSession session) {
-        String tipo = (String) session.getAttribute("tipoUsuario");
-        return "ADMIN".equals(tipo); 
-    }
-
     @GetMapping
     public ModelAndView listColegiados(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "2") int size,
-            ModelAndView mv,
-            HttpSession session
+            ModelAndView mv
     ) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
-
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("id").ascending());
         Page<Colegiado> colegiados = colegiadoService.findAll(pageable);
 
@@ -60,12 +49,8 @@ public class ColegiadoController {
         return mv;
     }
 
-
     @GetMapping("/form")
-    public ModelAndView getForm(ModelAndView mv, HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
+    public ModelAndView getForm(ModelAndView mv) {
         mv.addObject("colegiado", new Colegiado());
         mv.addObject("todosProfessores", colegiadoService.findAllProfessores()); 
         mv.setViewName("colegiados/form");
@@ -73,10 +58,7 @@ public class ColegiadoController {
     }
 
     @GetMapping("/{id}/edit")
-    public ModelAndView editColegiado(@PathVariable("id") Long id, ModelAndView mv, HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
+    public ModelAndView editColegiado(@PathVariable("id") Long id, ModelAndView mv) {
         Colegiado colegiado = colegiadoService.findById(id);
         mv.addObject("colegiado", colegiado);
         mv.addObject("todosProfessores", colegiadoService.findAllProfessores());
@@ -85,20 +67,16 @@ public class ColegiadoController {
     }
 
     @PostMapping
-    public ModelAndView saveColegiado(Colegiado colegiado, RedirectAttributes attr, HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
+    public ModelAndView saveColegiado(Colegiado colegiado, RedirectAttributes attr) {
         colegiadoService.save(colegiado);
+        attr.addFlashAttribute("mensagem", "Colegiado salvo com sucesso!");
         return new ModelAndView("redirect:/colegiados"); 
     }
 
     @GetMapping("/{id}/delete")
-    public ModelAndView deleteColegiado(@PathVariable("id") Long id, RedirectAttributes attr, HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
+    public ModelAndView deleteColegiado(@PathVariable("id") Long id, RedirectAttributes attr) {
         colegiadoService.deleteById(id);
+        attr.addFlashAttribute("mensagem", "Colegiado removido com sucesso!");
         return new ModelAndView("redirect:/colegiados");
     }
 }

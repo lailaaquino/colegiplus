@@ -20,7 +20,6 @@ import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.service.AlunoService;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Controller
@@ -30,22 +29,11 @@ public class AlunoController {
     @Autowired
     private AlunoService alunoService;
 
-    private boolean isPermitidoGerenciar(HttpSession session) {
-        String tipo = (String) session.getAttribute("tipoUsuario");
-        return "ADMIN".equals(tipo);
-    }
-
     @GetMapping({ "", "/" })
     public ModelAndView listarAlunos(
             ModelAndView model,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "3") int size,
-            HttpSession session
-    ) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
-
+            @RequestParam(defaultValue = "3") int size) {
         Pageable paging = PageRequest.of(page - 1, size, Sort.by("id").descending());
         Page<Aluno> pageAlunos = alunoService.findAll(paging);
 
@@ -53,8 +41,7 @@ public class AlunoController {
                 pageAlunos.getNumber() + 1,
                 pageAlunos.getTotalElements(),
                 pageAlunos.getTotalPages(),
-                size
-        );
+                size);
 
         model.addObject("alunos", pageAlunos);
         model.addObject("navPage", navPage);
@@ -64,11 +51,7 @@ public class AlunoController {
     }
 
     @GetMapping({ "/form", "/{id}/edit" })
-    public ModelAndView mostrarFormulario(@PathVariable(required = false) Long id, ModelAndView modelAndView,
-            HttpSession session) {
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
+    public ModelAndView mostrarFormulario(@PathVariable(required = false) Long id, ModelAndView modelAndView) {
         Aluno aluno;
         if (id == null) {
             aluno = new Aluno();
@@ -85,18 +68,14 @@ public class AlunoController {
 
     @PostMapping("/form")
     public ModelAndView salvarAluno(@Valid Aluno aluno, BindingResult result,
-            ModelAndView modelAndView, RedirectAttributes attr,
-            HttpSession session) {
-
-        if (!isPermitidoGerenciar(session)) {
-            return new ModelAndView("redirect:/home");
-        }
+            ModelAndView modelAndView, RedirectAttributes attr) {
 
         if (result.hasErrors()) {
             modelAndView.setViewName("alunos/form");
             return modelAndView;
         }
 
+        // Validações de duplicidade
         if (aluno.getId() == null) {
             if (alunoService.existsByMatricula(aluno.getMatricula())) {
                 result.rejectValue("matricula", "matricula.exists", "Esta matrícula já está cadastrada.");
@@ -126,28 +105,15 @@ public class AlunoController {
     }
 
     @GetMapping("/{id}/delete")
-    public ModelAndView delete(@PathVariable Long id, ModelAndView mv, RedirectAttributes attr, HttpSession session) {
-
-        String tipo = (String) session.getAttribute("tipoUsuario");
-        if (!"ADMIN".equals(tipo)) {
-            attr.addFlashAttribute("erro", "Você não tem permissão para realizar esta operação.");
-            mv.setViewName("redirect:/alunos");
-            return mv;
-        }
-
+    public ModelAndView delete(@PathVariable Long id, ModelAndView mv, RedirectAttributes attr) {
         try {
             alunoService.deleteById(id);
-
             attr.addFlashAttribute("mensagem", "Aluno removido com sucesso!");
-
         } catch (DataIntegrityViolationException e) {
-            attr.addFlashAttribute("erro",
-                    "Erro ao excluir: Este aluno possui processos vinculados e não pode ser removido.");
-
+            attr.addFlashAttribute("erro", "Erro ao excluir: Este aluno possui processos vinculados.");
         } catch (Exception e) {
             attr.addFlashAttribute("erro", "Erro inesperado ao tentar remover o aluno.");
         }
-
         mv.setViewName("redirect:/alunos");
         return mv;
     }

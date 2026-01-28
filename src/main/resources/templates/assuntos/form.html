@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt_BR" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,38 +13,44 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen p-6">
     <th:block th:replace="~{header :: menu}"></th:block>
 
-    <h1 class="text-3xl font-bold tracking-tight mb-4"
-        th:text="${assunto.id == null ? 'Cadastrar Assunto' : 'Editar Assunto'}"></h1>
+    <div sec:authorize="hasRole('ADMIN')">
+        <h1 class="text-3xl font-bold tracking-tight mb-4"
+            th:text="${assunto.id == null ? 'Cadastrar Assunto' : 'Editar Assunto'}"></h1>
 
-    <hr class="border-slate-800 mb-6">
+        <hr class="border-slate-800 mb-6">
 
-    <form th:action="@{/assuntos}" method="post" th:object="${assunto}"
-          class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 max-w-xl space-y-6">
+        <form th:action="@{/assuntos}" method="post" th:object="${assunto}"
+              class="bg-slate-900/40 border border-slate-800 rounded-xl p-6 max-w-xl space-y-6">
 
-        <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{id}"/>
 
-        <div>
-            <label class="block mb-1 text-sm text-slate-300">Nome do Assunto:</label>
-            <input type="text" th:field="*{nome}" placeholder="Digite o nome do assunto" required
-                   class="bg-white text-black border border-slate-700 rounded-lg px-3 py-2 w-full"
-                    style="color:#000;">
-        </div>
+            <div>
+                <label class="block mb-1 text-sm text-slate-300">Nome do Assunto:</label>
+                <input type="text" th:field="*{nome}" placeholder="Digite o nome do assunto" required
+                       class="bg-white text-black border border-slate-700 rounded-lg px-3 py-2 w-full"
+                        style="color:#000;">
+            </div>
 
-        <hr class="border-slate-800">
+            <hr class="border-slate-800">
 
-        <div class="flex gap-4">
-            <button type="submit"
-                class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium">
-                Salvar
-            </button>
+            <div class="flex gap-4">
+                <button type="submit"
+                    class="bg-indigo-500 hover:bg-indigo-400 transition px-5 py-2 rounded-lg text-white font-medium">
+                    Salvar
+                </button>
 
-            <a th:href="@{/assuntos}"
-                class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
-                Cancelar
-            </a>
-        </div>
+                <a th:href="@{/assuntos}"
+                    class="px-5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
 
-    </form>
+    <div sec:authorize="!hasRole('ADMIN')" class="text-center py-20">
+        <h2 class="text-2xl font-bold text-red-400">Acesso Restrito</h2>
+        <a th:href="@{/home}" class="mt-4 inline-block text-indigo-400 hover:underline">Voltar para Home</a>
+    </div>
 
 </body>
 </html>

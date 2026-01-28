@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="pt_BR" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt_BR" 
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,7 +29,7 @@
       class="mb-6 p-3 bg-emerald-900/40 border border-emerald-700 rounded-lg text-emerald-300"
     ></p>
 
-    <div th:if="${session.tipoUsuario == 'COORDENADOR'}" class="mb-6">
+    <div sec:authorize="hasRole('COORDENADOR')" class="mb-6">
       <a
         th:href="@{/reunioes/nova}"
         class="bg-indigo-500 hover:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium shadow transition inline-block"
@@ -129,38 +131,40 @@
             ></td>
 
             <td class="px-3 py-2 text-center align-middle">
-              <form th:if="${session.tipoUsuario == 'COORDENADOR' and r.status.name() == 'PROGRAMADA'}"
+              <form sec:authorize="hasRole('COORDENADOR')" 
+                    th:if="${r.status.name() == 'PROGRAMADA'}"
                     th:action="@{/reunioes/{id}/iniciar(id=${r.id})}"
                     method="post">
+                <button type="submit"
+                        class="bg-indigo-500 hover:bg-indigo-400 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
+                  Iniciar Sessão
+                </button>
+              </form>
 
-              <button type="submit"
-                      class="bg-indigo-500 hover:bg-indigo-400 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
-                Iniciar Sessão
-              </button>
-            </form>
+              <a sec:authorize="hasRole('COORDENADOR')" 
+                 th:if="${r.status.name() == 'EM_JULGAMENTO'}"
+                 th:href="@{/reunioes/{id}/conducao(id=${r.id})}"
+                 class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
+                Conduzir sessão
+              </a>
 
-            <a th:if="${session.tipoUsuario == 'COORDENADOR' and r.status.name() == 'EM_JULGAMENTO'}"
-              th:href="@{/reunioes/{id}/conducao(id=${r.id})}"
-              class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
-              Conduzir sessão
-            </a>
+              <a sec:authorize="hasAnyRole('PROFESSOR', 'COORDENADOR')" 
+                 th:if="${r.status.name() == 'EM_JULGAMENTO'}"
+                 th:href="@{/reunioes/{id}(id=${r.id})}"
+                 class="inline-block bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs px-3 py-1.5 rounded-md transition shadow-sm border border-slate-700">
+                Votar
+              </a>
 
-            <a th:if="${r.status.name() == 'EM_JULGAMENTO'}"
-              th:href="@{/reunioes/{id}(id=${r.id})}"
-              class="inline-block bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs px-3 py-1.5 rounded-md transition shadow-sm border border-slate-700">
-              Votar
-            </a>
+              <span th:if="${r.status.name() == 'PROGRAMADA'}"
+                    class="text-indigo-300 text-xs font-bold italic block">
+                Aguardando início
+              </span>
 
-            <span th:if="${r.status.name() == 'PROGRAMADA'}"
-                  class="text-indigo-300 text-xs font-bold italic">
-              Aguardando início
-            </span>
-
-            <span th:if="${r.status.name() == 'ENCERRADA'}"
-                  class="text-slate-500 text-xs font-bold italic">
-              Sessão encerrada
-            </span>
-          </td>
+              <span th:if="${r.status.name() == 'ENCERRADA'}"
+                    class="text-slate-500 text-xs font-bold italic block">
+                Sessão encerrada
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
