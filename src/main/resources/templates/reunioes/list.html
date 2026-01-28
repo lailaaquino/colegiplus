@@ -128,26 +128,39 @@
               th:text="${r.processos != null ? r.processos.size() : 0}"
             ></td>
 
-            <td class="px-3 py-2 text-left align-middle">
+            <td class="px-3 py-2 text-center align-middle">
               <form th:if="${session.tipoUsuario == 'COORDENADOR' and r.status.name() == 'PROGRAMADA'}"
-                  th:action="@{/reunioes/{id}/iniciar(id=${r.id})}"
-                  method="post">
-                <button type="submit"
-                    class="bg-indigo-500 hover:bg-indigo-400 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
-                  Iniciar Sessão para Julgamento
-                </button>
-              </form>
+                    th:action="@{/reunioes/{id}/iniciar(id=${r.id})}"
+                    method="post">
 
-              <span th:if="${r.status.name() == 'EM_JULGAMENTO'}"
-                  class="text-amber-400 text-xs font-bold italic">
-                Sessão  acontecendo
-              </span>
+              <button type="submit"
+                      class="bg-indigo-500 hover:bg-indigo-400 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
+                Iniciar Sessão
+              </button>
+            </form>
 
-              <span th:if="${r.status.name() == 'ENCERRADA'}"
+            <a th:if="${session.tipoUsuario == 'COORDENADOR' and r.status.name() == 'EM_JULGAMENTO'}"
+              th:href="@{/reunioes/{id}/conducao(id=${r.id})}"
+              class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-1.5 rounded-md transition shadow-sm font-semibold">
+              Conduzir sessão
+            </a>
+
+            <a th:if="${r.status.name() == 'EM_JULGAMENTO'}"
+              th:href="@{/reunioes/{id}(id=${r.id})}"
+              class="inline-block bg-slate-800 hover:bg-slate-700 text-slate-100 text-xs px-3 py-1.5 rounded-md transition shadow-sm border border-slate-700">
+              Votar
+            </a>
+
+            <span th:if="${r.status.name() == 'PROGRAMADA'}"
+                  class="text-indigo-300 text-xs font-bold italic">
+              Aguardando início
+            </span>
+
+            <span th:if="${r.status.name() == 'ENCERRADA'}"
                   class="text-slate-500 text-xs font-bold italic">
-                Sesão Encerrada
-              </span>
-            </td>
+              Sessão encerrada
+            </span>
+          </td>
           </tr>
         </tbody>
       </table>
