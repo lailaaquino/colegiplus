@@ -37,9 +37,6 @@ public class Professor implements Serializable {
     @Column(unique = true, nullable = false)
     private String matricula;
 
-    @Column(unique = true, nullable = false)
-    private String login;
-
     @OneToOne
     @JoinColumn(name = "username")
     private User user;
@@ -54,8 +51,4 @@ public class Professor implements Serializable {
 
     @OneToMany(mappedBy = "coordenador")
     private List<Colegiado> colegiadosCoordenados;
-
-    @NotBlank(message = "A senha é obrigatória")
-    private String senha;
-
 }

@@ -10,7 +10,7 @@ import br.edu.ifpb.pweb2.colegiplus.model.Professor;
 @Repository
 public interface ProfessorRepository extends JpaRepository<Professor, Long> {
 
-    Professor findByLogin(String login);
+    Professor findByUserUsername(String username);
 
     boolean existsByMatricula(String matricula);
 
@@ -21,5 +21,5 @@ public interface ProfessorRepository extends JpaRepository<Professor, Long> {
     List<Professor> findByNomeContainingIgnoreCase(String nome);
 
     boolean existsByMatriculaAndIdNot(String matricula, Long id); 
-    boolean existsByLoginAndIdNot(String login, Long id);
+    boolean existsByUserUsernameAndIdNot(String username, Long id);
 }

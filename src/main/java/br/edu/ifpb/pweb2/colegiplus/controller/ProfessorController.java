@@ -21,6 +21,7 @@ import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
 import br.edu.ifpb.pweb2.colegiplus.model.Professor;
 import br.edu.ifpb.pweb2.colegiplus.service.ProfessorService;
 import jakarta.validation.Valid;
+import br.edu.ifpb.pweb2.colegiplus.model.User;
 
 @Controller
 @RequestMapping("/professores")
@@ -57,6 +58,7 @@ public class ProfessorController {
         Professor professor;
         if (id == null) {
             professor = new Professor(); 
+            professor.setUser(new User());
         } else {
             professor = professorService.findById(id);
             if (professor == null) {
@@ -77,21 +79,22 @@ public class ProfessorController {
             modelAndView.setViewName("professores/form");
             return modelAndView;
         }
+        String username = professor.getUser().getUsername();
 
-        // Validações de duplicidade
+        
         if (professor.getId() == null) { 
             if (professorService.existsByMatricula(professor.getMatricula())) {
                 result.rejectValue("matricula", "matricula.exists", "Esta matrícula já está cadastrada.");
             }
-            if (professorService.existsByLogin(professor.getLogin())) {
-                result.rejectValue("login", "login.exists", "Este login já está em uso.");
+            if (professorService.existsByLogin(username)) {
+                result.rejectValue("user.username", "login.exists", "Este login já está em uso.");
             }
         } else { 
              if (professorService.existsByMatriculaAndIdNot(professor.getMatricula(), professor.getId())) {
                  result.rejectValue("matricula", "matricula.exists", "Esta matrícula já está cadastrada para outro professor.");
              }
-             if (professorService.existsByLoginAndIdNot(professor.getLogin(), professor.getId())) {
-                 result.rejectValue("login", "login.exists", "Este login já está em uso por outro professor.");
+             if (professorService.existsByLoginAndIdNot(username, professor.getId())) {
+                 result.rejectValue("user.username", "login.exists", "Este login já está em uso por outro professor.");
              }
         }
 
@@ -102,7 +105,7 @@ public class ProfessorController {
         
         professorService.save(professor);
         attr.addFlashAttribute("mensagem", "Professor salvo com sucesso!");
-        modelAndView.setViewName("redirect:/professores/");
+        modelAndView.setViewName("redirect:/professores");
         return modelAndView;
     }
     
