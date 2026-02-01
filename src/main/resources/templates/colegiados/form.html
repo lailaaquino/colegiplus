@@ -39,7 +39,7 @@
                         class="bg-white text-black border border-slate-700 px-3 py-2 rounded-lg w-full"
                         style="color:#000;">
                         <option value="">-- Selecione o Coordenador --</option>
-                        <option th:each="professor : ${todosProfessores}" th:value="${professor.id}"
+                        <option th:each="professor : ${professoresCoordenadores}" th:value="${professor.id}"
                             th:text="${professor.nome}"></option>
                     </select>
                 </div>

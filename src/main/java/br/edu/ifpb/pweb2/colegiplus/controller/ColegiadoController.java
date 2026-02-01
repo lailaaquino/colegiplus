@@ -53,6 +53,7 @@ public class ColegiadoController {
     public ModelAndView getForm(ModelAndView mv) {
         mv.addObject("colegiado", new Colegiado());
         mv.addObject("todosProfessores", colegiadoService.findAllProfessores()); 
+        mv.addObject("professoresCoordenadores", colegiadoService.findCoordenadores());
         mv.setViewName("colegiados/form");
         return mv;
     }
@@ -62,6 +63,7 @@ public class ColegiadoController {
         Colegiado colegiado = colegiadoService.findById(id);
         mv.addObject("colegiado", colegiado);
         mv.addObject("todosProfessores", colegiadoService.findAllProfessores());
+        mv.addObject("professoresCoordenadores", colegiadoService.findCoordenadores());
         mv.setViewName("colegiados/form");
         return mv;
     }

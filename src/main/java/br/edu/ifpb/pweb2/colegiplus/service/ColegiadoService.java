@@ -48,4 +48,8 @@ public class ColegiadoService {
     public List<Professor> findAllProfessores() {
         return professorRepository.findAll();
     }
+
+    public List<Professor> findCoordenadores() {
+        return professorRepository.findByCoordenadorTrue();
+    }
 }
