@@ -165,12 +165,6 @@
             <p class="text-xs text-slate-500">
               Sistema experimental para disciplina de PWEB2 – IFPB.
             </p>
-
-            <form th:action="@{/auth/logout}" method="post" sec:authorize="isAuthenticated()">
-              <button type="submit" class="inline-flex items-center justify-center rounded-full border border-slate-700 px-4 py-2 text-xs md:text-sm font-medium text-slate-200 hover:bg-slate-800 transition">
-                Sair
-              </button>
-            </form>
           </div>
         </section>
       </div>

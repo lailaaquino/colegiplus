@@ -1,63 +1,76 @@
-<!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<body>
-
 <th:block th:fragment="menu">
   <nav class="w-full bg-slate-900 border-b border-slate-800 px-6 py-4">
     <div class="flex items-center gap-16">
-
       <a th:href="@{/}" class="text-lg font-bold text-white tracking-tight">
         Colegi<span class="text-indigo-400">+</span>
       </a>
 
       <ul class="flex items-center gap-10 text-sm font-medium">
-
-        <li th:if="${session.tipoUsuario == 'ALUNO'}" class="m-4">
-          <a th:href="@{/processos}"
-             class="text-slate-300 hover:text-indigo-400 transition m-4">
+        <li sec:authorize="hasRole('ALUNO')" class="m-4">
+          <a
+            th:href="@{/processos}"
+            class="text-slate-300 hover:text-indigo-400 transition"
+          >
             Meus Processos
           </a>
         </li>
 
-        <li th:if="${session.tipoUsuario == 'PROFESSOR'}" class="m-4">
-          <a th:href="@{/processos}"
-             class="text-slate-300 hover:text-indigo-400 transition">
-            Atribuídos
+        <li
+          sec:authorize="hasRole('PROFESSOR') and !hasRole('COORDENADOR')"
+          class="m-4"
+        >
+          <a
+            th:href="@{/processos}"
+            class="text-slate-300 hover:text-indigo-400 transition"
+          >
+            Processos Atribuídos
           </a>
         </li>
 
-        <li th:if="${session.tipoUsuario == 'PROFESSOR' and session.coordenador == true}" class="m-4">
-          <a th:href="@{/processos}"
-             class="text-slate-300 hover:text-indigo-400 transition">
-            Distribuir
+        <li sec:authorize="hasRole('COORDENADOR')" class="m-4">
+          <a
+            th:href="@{/processos}"
+            class="text-slate-300 hover:text-indigo-400 transition"
+          >
+            Gerenciar/Distribuir
           </a>
         </li>
 
-        <li th:if="${session.tipoUsuario == 'ADMIN'}" class="m-4">
-          <a th:href="@{/assuntos}"
-             class="text-slate-300 hover:text-indigo-400 transition">
-            Assuntos
-          </a>
-        </li>
+        <th:block sec:authorize="hasRole('ADMIN')">
+          <li class="m-4">
+            <a
+              th:href="@{/assuntos}"
+              class="text-slate-300 hover:text-indigo-400 transition"
+              >Assuntos</a
+            >
+          </li>
+          <li class="m-4">
+            <a
+              th:href="@{/colegiados}"
+              class="text-slate-300 hover:text-indigo-400 transition"
+              >Colegiados</a
+            >
+          </li>
+          <li class="m-4">
+            <a
+              th:href="@{/alunos}"
+              class="text-slate-300 hover:text-indigo-400 transition"
+              >Alunos</a
+            >
+          </li>
+        </th:block>
 
-        <li th:if="${session.tipoUsuario == 'ADMIN'}" class="m-4">
-          <a th:href="@{/colegiados}"
-             class="text-slate-300 hover:text-indigo-400 transition">
-            Colegiados
-          </a>
+        <li sec:authorize="isAuthenticated()" class="m-4">
+          <form th:action="@{/logout}" method="post" style="display: inline">
+            <button
+              type="submit"
+              class="text-red-400 hover:text-red-300 transition font-semibold"
+            >
+              Sair
+            </button>
+          </form>
         </li>
-
-        <li th:if="${session.tipoUsuario != null}" class="m-4">
-          <a th:href="@{/auth/logout}"
-             class="text-red-400 hover:text-red-300 transition font-semibold">
-            Sair
-          </a>
-        </li>
-
       </ul>
     </div>
   </nav>
 </th:block>
-
-</body>
-</html>

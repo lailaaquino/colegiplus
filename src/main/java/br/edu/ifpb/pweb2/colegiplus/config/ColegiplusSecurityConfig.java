@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +29,7 @@ public class ColegiplusSecurityConfig {
                 http
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/acesso-negado",
-                                                                "/css/**", "/imagens/**", "/js/**")
+                                                                "/css/**", "/imagens/**", "/js/**", "/")
                                                 .permitAll()
                                                 .requestMatchers("/alunos", "/alunos/**").hasRole("ADMIN")
                                                 .requestMatchers("/professores/**").hasRole("ADMIN")
@@ -36,7 +37,8 @@ public class ColegiplusSecurityConfig {
                                                 .requestMatchers("/assuntos/**").hasRole("ADMIN")
                                                 .requestMatchers("/auth/**").permitAll()
                                                 .requestMatchers("/home/**").authenticated()
-                                                .requestMatchers("/processos/**").hasRole("PROFESSOR")
+                                                .requestMatchers("/processos/**")
+                                                .hasAnyRole("PROFESSOR", "COORDENADOR", "ALUNO")
                                                 .requestMatchers("/reunioes/**").hasAnyRole("PROFESSOR", "COORDENADOR"))
 
                                 .formLogin(form -> form
@@ -46,7 +48,7 @@ public class ColegiplusSecurityConfig {
                                 .exceptionHandling(exception -> exception
                                                 .accessDeniedPage("/acesso-negado"))
                                 .logout(logout -> logout
-                                                .logoutUrl("/auth/logout")
+                                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                                                 .logoutSuccessUrl("/auth/login?logout")
                                                 .permitAll());
                 return http.build();

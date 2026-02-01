@@ -9,14 +9,12 @@
   </head>
 
   <body class="min-h-screen bg-slate-950 text-slate-100">
-    <!-- Header -->
     <th:block th:replace="~{header :: menu}"></th:block>
 
     <main class="max-w-3xl mx-auto px-4 py-16">
       <div
         class="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-10 text-center"
       >
-        <!-- Ícone -->
         <div class="flex justify-center mb-6">
           <div
             class="flex items-center justify-center w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30"
@@ -34,7 +32,6 @@
           Caso acredite que isso seja um erro, entre em contato com o administrador do sistema.
         </p>
 
-        <!-- Ações -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a
             th:href="@{/home}"

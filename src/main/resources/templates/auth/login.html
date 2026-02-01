@@ -31,6 +31,14 @@
           Login e/ou senha inválidos!
         </div>
 
+        <div
+          th:if="${param.logout}"
+          class="mb-4 text-sm text-indigo-400 bg-indigo-950/40 border border-indigo-900/60 px-3 py-2 rounded-lg"
+          role="alert"
+        >
+          Sua sessão foi encerrada com sucesso!
+        </div>
+
         <form th:action="@{/auth/login}" method="post" class="space-y-4">
           <div>
             <label
