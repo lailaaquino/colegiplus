@@ -67,18 +67,18 @@ public class ProcessoController {
         String login = authentication.getName();
         Page<Processo> processos = Page.empty();
 
-        // Lógica de Aluno
+        
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"))) {
-            Aluno aluno = alunoRepository.findByLogin(login);
+            Aluno aluno = alunoRepository.findByUsername(login);
             Pageable pageable = PageRequest.of(page - 1, size, 
                 "desc".equalsIgnoreCase(ordem) ? Sort.by("dataRecepcao").descending() : Sort.by("dataRecepcao").ascending());
             
             processos = processoService.filtrarProcessosDoAluno(aluno, status, assuntoId, pageable);
             mv.addObject("assuntos", assuntoRepository.findAll());
         } 
-        // Lógica de Professor/Coordenador
+        
         else {
-            Professor prof = professorRepository.findByLogin(login);
+            Professor prof = professorRepository.findByUserUsername(login);
             Pageable pageable = PageRequest.of(page - 1, size, Sort.by("dataRecepcao").descending());
 
             if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_COORDENADOR"))) {
@@ -112,14 +112,14 @@ public class ProcessoController {
 
     @PostMapping
     public String salvar(Processo processo, @RequestParam(value="requerimentoFile", required=false) MultipartFile requerimentoFile, Authentication authentication) {
-        Aluno aluno = alunoRepository.findByLogin(authentication.getName());
+        Aluno aluno = alunoRepository.findByUsername(authentication.getName());
         processoService.saveForAluno(processo, aluno, requerimentoFile);
         return "redirect:/processos";
     }
 
     @GetMapping("/{id}/distribuir")
     public ModelAndView formDistribuir(@PathVariable Long id, Authentication authentication) {
-        Professor coord = professorRepository.findByLogin(authentication.getName());
+        Professor coord = professorRepository.findByUserUsername(authentication.getName());
         Processo processo = processoService.findById(id);
         List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coord);
 

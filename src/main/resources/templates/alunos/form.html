@@ -80,20 +80,21 @@
 
         <div>
           <label
-            for="login"
+            for="username"
             class="block text-sm font-medium text-slate-400 mb-1"
             >Login:</label
           >
           <input
             type="text"
-            th:field="*{login}"
-            id="login"
+            th:field="*{user.username}"
+            id="username"
             class="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-slate-100 focus:ring-indigo-500 focus:border-indigo-500"
             required
+            th:readonly="${aluno.id != null}"
           />
           <span
-            th:if="${#fields.hasErrors('login')}"
-            th:errors="*{login}"
+            th:if="${#fields.hasErrors('user.username')}"
+            th:errors="*{user.username}"
             class="text-sm text-red-400 mt-1 block"
             >Erro de Login</span
           >
@@ -101,15 +102,15 @@
 
         <div>
           <label
-            for="senha"
+            for="password"
             class="block text-sm font-medium text-slate-400 mb-1"
             >Senha:</label
           >
                  
           <input
             type="password"
-            th:field="*{senha}"
-            id="senha"
+            th:field="*{user.password}"
+            id="password"
             class="w-full px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-slate-100 focus:ring-indigo-500 focus:border-indigo-500"
             th:required="${aluno.id == null}"
           />
@@ -117,8 +118,8 @@
             Deixe em branco para manter a senha atual.
           </p>
           <span
-            th:if="${#fields.hasErrors('senha')}"
-            th:errors="*{senha}"
+            th:if="${#fields.hasErrors('user.password')}"
+            th:errors="*{user.password}"
             class="text-sm text-red-400 mt-1 block"
             >Erro de Senha</span
           >

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +20,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPage;
 import br.edu.ifpb.pweb2.colegiplus.model.NavPageBuilder;
+import br.edu.ifpb.pweb2.colegiplus.model.User;
 import br.edu.ifpb.pweb2.colegiplus.service.AlunoService;
 import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/alunos")
+
 public class AlunoController {
 
     @Autowired
@@ -55,6 +58,8 @@ public class AlunoController {
         Aluno aluno;
         if (id == null) {
             aluno = new Aluno();
+            
+            aluno.setUser(new User());
         } else {
             aluno = alunoService.findById(id);
             if (aluno == null) {
@@ -62,7 +67,7 @@ public class AlunoController {
             }
         }
         modelAndView.addObject("aluno", aluno);
-        modelAndView.setViewName("alunos/form");
+        modelAndView.setViewName("alunos/form"); 
         return modelAndView;
     }
 
@@ -75,21 +80,21 @@ public class AlunoController {
             return modelAndView;
         }
 
-        // Validações de duplicidade
+        
         if (aluno.getId() == null) {
             if (alunoService.existsByMatricula(aluno.getMatricula())) {
                 result.rejectValue("matricula", "matricula.exists", "Esta matrícula já está cadastrada.");
             }
-            if (alunoService.existsByLogin(aluno.getLogin())) {
-                result.rejectValue("login", "login.exists", "Este login já está em uso.");
+            if (alunoService.existsByLogin(aluno.getUser().getUsername())) {
+                result.rejectValue("user.username", "login.exists", "Este login já está em uso.");
             }
         } else {
             if (alunoService.existsByMatriculaAndIdNot(aluno.getMatricula(), aluno.getId())) {
                 result.rejectValue("matricula", "matricula.exists",
                         "Esta matrícula já está cadastrada para outro aluno.");
             }
-            if (alunoService.existsByLoginAndIdNot(aluno.getLogin(), aluno.getId())) {
-                result.rejectValue("login", "login.exists", "Este login já está em uso por outro aluno.");
+            if (alunoService.existsByLoginAndIdNot(aluno.getUser().getUsername(), aluno.getId())) {
+                result.rejectValue("user.username", "login.exists", "Este login já está em uso por outro aluno.");
             }
         }
 

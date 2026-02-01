@@ -37,17 +37,11 @@ public class Aluno implements Serializable {
     @Column(unique = true, nullable = false)
     private String matricula;
 
-    @Column(unique = true, nullable = false)
-    private String login;
-
     @OneToMany(mappedBy = "interessado")
     private List<Processo> processos;
 
     @OneToOne
     @JoinColumn(name = "username")
     private User user;
-
-    @NotBlank(message = "A senha é obrigatória")
-    private String senha;
 
 }

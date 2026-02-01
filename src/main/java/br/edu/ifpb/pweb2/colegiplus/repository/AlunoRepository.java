@@ -10,15 +10,15 @@ import br.edu.ifpb.pweb2.colegiplus.model.Aluno;
 @Repository
 public interface AlunoRepository extends JpaRepository<Aluno, Long> {
 
-    Aluno findByLogin(String login);
+    Aluno findByUserUsername(String username);
 
     boolean existsByMatricula(String matricula);
 
-    boolean existsByLogin(String login);
+    boolean existsByUserUsername(String username);
 
     List<Aluno> findByNomeContainingIgnoreCase(String nome);
 
     boolean existsByMatriculaAndIdNot(String matricula, Long id);
 
-    boolean existsByLoginAndIdNot(String login, Long id);
+    boolean existsByUserUsernameAndIdNot(String username, Long id);
 }
