@@ -61,22 +61,21 @@ public class ProcessoController {
             @RequestParam(required = false, defaultValue = "asc") String ordem,
             @RequestParam(required = false) String nomeAluno,
             @RequestParam(required = false) String nomeProfessor,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         ModelAndView mv = new ModelAndView("processos/list");
         String login = authentication.getName();
         Page<Processo> processos = Page.empty();
 
-        
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ALUNO"))) {
-            Aluno aluno = alunoRepository.findByUsername(login);
-            Pageable pageable = PageRequest.of(page - 1, size, 
-                "desc".equalsIgnoreCase(ordem) ? Sort.by("dataRecepcao").descending() : Sort.by("dataRecepcao").ascending());
-            
+            Aluno aluno = alunoRepository.findByUserUsername(login);
+            Pageable pageable = PageRequest.of(page - 1, size,
+                    "desc".equalsIgnoreCase(ordem) ? Sort.by("dataRecepcao").descending()
+                            : Sort.by("dataRecepcao").ascending());
+
             processos = processoService.filtrarProcessosDoAluno(aluno, status, assuntoId, pageable);
             mv.addObject("assuntos", assuntoRepository.findAll());
-        } 
-        
+        }
+
         else {
             Professor prof = professorRepository.findByUserUsername(login);
             Pageable pageable = PageRequest.of(page - 1, size, Sort.by("dataRecepcao").descending());
@@ -91,7 +90,8 @@ public class ProcessoController {
             }
         }
 
-        NavPage navPage = NavPageBuilder.newNavPage(processos.getNumber() + 1, processos.getTotalElements(), processos.getTotalPages(), size);
+        NavPage navPage = NavPageBuilder.newNavPage(processos.getNumber() + 1, processos.getTotalElements(),
+                processos.getTotalPages(), size);
         mv.addObject("processos", processos);
         mv.addObject("navPage", navPage);
         mv.addObject("resourcePath", "processos");
@@ -111,8 +111,10 @@ public class ProcessoController {
     }
 
     @PostMapping
-    public String salvar(Processo processo, @RequestParam(value="requerimentoFile", required=false) MultipartFile requerimentoFile, Authentication authentication) {
-        Aluno aluno = alunoRepository.findByUsername(authentication.getName());
+    public String salvar(Processo processo,
+            @RequestParam(value = "requerimentoFile", required = false) MultipartFile requerimentoFile,
+            Authentication authentication) {
+        Aluno aluno = alunoRepository.findByUserUsername(authentication.getName());
         processoService.saveForAluno(processo, aluno, requerimentoFile);
         return "redirect:/processos";
     }
@@ -128,7 +130,9 @@ public class ProcessoController {
                 .flatMap(c -> c.getMembros().stream())
                 .distinct().toList();
 
-        if (membros.isEmpty()) { membros = professorRepository.findAll(); }
+        if (membros.isEmpty()) {
+            membros = professorRepository.findAll();
+        }
 
         ModelAndView mv = new ModelAndView("processos/distribuir");
         mv.addObject("processo", processo);
@@ -148,10 +152,13 @@ public class ProcessoController {
     @GetMapping("/{id}/requerimento")
     public ResponseEntity<byte[]> baixarRequerimento(@PathVariable Long id) {
         Processo processo = processoService.findById(id);
-        if (processo.getRequerimentoPdf() == null) { return ResponseEntity.notFound().build(); }
+        if (processo.getRequerimentoPdf() == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + processo.getRequerimentoNome() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + processo.getRequerimentoNome() + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(processo.getRequerimentoPdf());
     }

@@ -67,7 +67,7 @@ public class ReuniaoController {
 
     @GetMapping("/nova")
     public ModelAndView formNovaSessao(Authentication authentication, RedirectAttributes attr) {
-        Professor coordenador = professorRepository.findByLogin(authentication.getName());
+        Professor coordenador = professorRepository.findByUserUsername(authentication.getName());
 
         List<Colegiado> colegiados = colegiadoRepository.findAllByCoordenador(coordenador);
         if (colegiados == null || colegiados.isEmpty()) {
@@ -95,7 +95,7 @@ public class ReuniaoController {
             @RequestParam(value = "status", required = false) String status,
             Authentication authentication) {
         ModelAndView mv = new ModelAndView("reunioes/list");
-        Professor professor = professorRepository.findByLogin(authentication.getName());
+        Professor professor = professorRepository.findByUserUsername(authentication.getName());
 
         StatusReuniao statusEnum = null;
         if (status != null && !status.isBlank() && !"null".equals(status)) {
@@ -126,7 +126,7 @@ public class ReuniaoController {
             @RequestParam(required = false) List<Long> participantesIds,
             Authentication authentication,
             RedirectAttributes attr) {
-        Professor coordenador = professorRepository.findByLogin(authentication.getName());
+        Professor coordenador = professorRepository.findByUserUsername(authentication.getName());
 
         if (processosIds == null || processosIds.isEmpty() || participantesIds == null || participantesIds.isEmpty()) {
             attr.addFlashAttribute("mensagemErro", "Selecione ao menos um processo e um participante.");
@@ -165,7 +165,7 @@ public class ReuniaoController {
 
     @GetMapping("/{id}")
     public ModelAndView detalhes(@PathVariable Long id, Authentication authentication) {
-        Professor professor = professorRepository.findByLogin(authentication.getName());
+        Professor professor = professorRepository.findByUserUsername(authentication.getName());
         Reuniao reuniao = reuniaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reunião não encontrada."));
 
@@ -191,7 +191,7 @@ public class ReuniaoController {
             @RequestParam(required = false) MultipartFile parecerFile,
             Authentication authentication,
             RedirectAttributes ra) {
-        Professor professor = professorRepository.findByLogin(authentication.getName());
+        Professor professor = professorRepository.findByUserUsername(authentication.getName());
         try {
             votoService.votar(reuniaoId, processoId, professor.getId(), decisao, justificativa, parecerFile);
             ra.addFlashAttribute("mensagem", "Voto registrado com sucesso.");
@@ -203,12 +203,12 @@ public class ReuniaoController {
 
     @GetMapping("/{id}/conducao")
     public ModelAndView conduzir(@PathVariable Long id) {
-        // A proteção de ROLE_COORDENADOR agora deve estar no SecurityConfig
-        // (antmatchers)
+
         Reuniao reuniao = reuniaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reunião não encontrada."));
 
-        if (reuniao.getStatus() != StatusReuniao.EM_JULGAMENTO) {
+        if (reuniao.getStatus() != StatusReuniao.EM_JULGAMENTO &&
+                reuniao.getStatus() != StatusReuniao.ENCERRADA) {
             return new ModelAndView("redirect:/reunioes");
         }
 
@@ -240,4 +240,20 @@ public class ReuniaoController {
         }
         return "redirect:/reunioes/" + reuniaoId + "/conducao";
     }
+
+    @PostMapping("/{id}/finalizar") // Removido o /reunioes inicial
+    public String finalizarSessao(@PathVariable Long id, RedirectAttributes attr) {
+        Reuniao reuniao = reuniaoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reunião não encontrada"));
+
+        reuniao.setStatus(StatusReuniao.ENCERRADA);
+        reuniaoRepository.save(reuniao);
+
+        attr.addFlashAttribute("mensagem", "Sessão encerrada com sucesso! Os votos foram congelados.");
+
+        // Ajuste o redirect para o nome correto do seu método @GetMapping (que é
+        // /conducao)
+        return "redirect:/reunioes/" + id + "/conducao";
+    }
+
 }
