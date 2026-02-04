@@ -28,7 +28,7 @@
             <label class="block mb-1 text-sm font-medium text-slate-300">Assunto:</label>
             <select th:field="*{assunto}"
                     class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    style="color: black;">
+                    style="color: black;" required>
                 
                 <option th:value="${null}">Selecione um Assunto</option>
 
@@ -43,15 +43,14 @@
             <label class="block mb-1 text-sm font-medium text-slate-300">Texto com requerimento:</label>
             <input type="text" th:field="*{textoRequerimento}"
                 class="bg-white border border-slate-700 px-3 py-2 rounded-lg w-full"
-                style="color: black;">
+                style="color: black;" required >
         </div>
 
         <div>
             <label class="block mb-1 text-sm font-medium text-slate-300">Requerimento (PDF):</label>
             <input type="file" name="requerimentoFile" accept="application/pdf"
                 class="block w-full text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0
-                        file:bg-indigo-500 file:px-4 file:py-2 file:text-white hover:file:bg-indigo-400"
-                style="color: black;">
+                        file:bg-indigo-500 file:px-4 file:py-2 file:text-white hover:file:bg-indigo-400">
             <p class="text-xs text-slate-400 mt-1">Envie um PDF. Só é permitido antes da distribuição.</p>
         </div>
 

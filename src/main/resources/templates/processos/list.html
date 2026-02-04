@@ -300,7 +300,9 @@
       </div>
 
       <div class="mt-8" th:if="${navPage.totalPages > 1}"></div>
-
+      <div class="mt-8">
+            <div th:replace="~{fragments/paging :: paginator(${resourcePath}, ${navPage})}"></div>
+      </div>
       <div class="mt-12 pb-10">
         <a
           th:href="@{/home}"
