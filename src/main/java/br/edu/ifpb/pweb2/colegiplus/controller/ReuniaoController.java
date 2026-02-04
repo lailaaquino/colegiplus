@@ -137,6 +137,12 @@ public class ReuniaoController {
         if (colegiados == null || colegiados.isEmpty())
             return "redirect:/reunioes";
 
+        List<Processo> processosSelecionados = processoRepository.findAllById(processosIds);
+
+        processosSelecionados.forEach(p -> {
+            p.setStatus(StatusProcesso.EM_PAUTA);
+        });
+
         Colegiado colegiado = colegiados.get(0);
         reuniao.setColegiado(colegiado);
         reuniao.setStatus(StatusReuniao.PROGRAMADA);
@@ -247,6 +253,14 @@ public class ReuniaoController {
                 .orElseThrow(() -> new RuntimeException("Reunião não encontrada"));
 
         reuniao.setStatus(StatusReuniao.ENCERRADA);
+
+        if (reuniao.getProcessos() != null) {
+            reuniao.getProcessos().forEach(processo -> {
+                processo.setStatus(StatusProcesso.JULGADO);
+                processoRepository.save(processo);
+            });
+        }
+
         reuniaoRepository.save(reuniao);
 
         attr.addFlashAttribute("mensagem", "Sessão encerrada com sucesso! Os votos foram congelados.");
