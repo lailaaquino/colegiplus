@@ -25,52 +25,28 @@ public interface  ReuniaoRepository extends JpaRepository<Reuniao, Long> {
 
     boolean existsByStatus(StatusReuniao status);
 
-    @Query("""
-    select distinct r
-    from Reuniao r
-    left join r.participantes p
-    where p.id = :profId
-        or r.colegiado.coordenador.id = :profId
-    order by r.data asc
-    """)
-    List<Reuniao> findVisiveisParaProfessor(@Param("profId") Long profId);
-
-    @Query("""
-    select distinct r
-    from Reuniao r
-    left join r.participantes p
-    where (p.id = :profId or r.colegiado.coordenador.id = :profId)
-        and r.status = :status
-    order by r.data asc
-    """)
-    List<Reuniao> findVisiveisParaProfessorAndStatus(@Param("profId") Long profId,
-                                                    @Param("status") StatusReuniao status);
-
 
     @Transactional(readOnly = true)
     @Query("""
-        SELECT r
-        FROM Reuniao r
-        WHERE
-          (
-            (r.colegiado.coordenador.id = :professorId)
-            OR
-            EXISTS (
-              SELECT 1
-              FROM Colegiado c
-              JOIN c.membros m
-              WHERE c = r.colegiado
-                AND m.id = :professorId
+      select r
+      from Reuniao r
+      where (
+            exists (select 1 from r.participantes p where p.id = :profId)
+            or r.colegiado.coordenador.id = :profId
+            or exists (
+                select 1
+                from r.processos pr
+                where pr.relator.id = :profId
             )
-          )
-          AND (:status IS NULL OR r.status = :status)
-        ORDER BY r.data DESC
+      )
+      and (:status is null or r.status = :status)
     """)
     Page<Reuniao> findVisiveisParaProfessor(
-            @Param("professorId") Long professorId,
+            @Param("profId") Long profId,
             @Param("status") StatusReuniao status,
             Pageable pageable
     );
+
 }
 
 

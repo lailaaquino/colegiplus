@@ -172,12 +172,24 @@ public class ReuniaoController {
     @GetMapping("/{id}")
     public ModelAndView detalhes(@PathVariable Long id, Authentication authentication) {
         Professor professor = professorRepository.findByUserUsername(authentication.getName());
+
         Reuniao reuniao = reuniaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reunião não encontrada."));
 
-        boolean participa = reuniao.getParticipantes().stream().anyMatch(p -> p.getId().equals(professor.getId()));
-        if (!participa)
+        boolean ehCoordenador = reuniao.getColegiado() != null
+                && reuniao.getColegiado().getCoordenador() != null
+                && reuniao.getColegiado().getCoordenador().getId().equals(professor.getId());
+
+        boolean participa = reuniao.getParticipantes() != null
+                && reuniao.getParticipantes().stream().anyMatch(p -> p.getId().equals(professor.getId()));
+
+        boolean ehRelatorDeAlgumProcesso = reuniao.getProcessos() != null
+                && reuniao.getProcessos().stream()
+                    .anyMatch(pr -> pr.getRelator() != null && pr.getRelator().getId().equals(professor.getId()));
+
+        if (!(participa || ehCoordenador || ehRelatorDeAlgumProcesso)) {
             return new ModelAndView("redirect:/reunioes");
+        }
 
         ModelAndView mv = new ModelAndView("reunioes/detalhes");
         mv.addObject("reuniao", reuniao);
@@ -187,6 +199,7 @@ public class ReuniaoController {
 
         return mv;
     }
+
 
     @PostMapping("/{reuniaoId}/processos/{processoId}/votar")
     public String votar(
@@ -247,7 +260,7 @@ public class ReuniaoController {
         return "redirect:/reunioes/" + reuniaoId + "/conducao";
     }
 
-    @PostMapping("/{id}/finalizar") // Removido o /reunioes inicial
+    @PostMapping("/{id}/finalizar")
     public String finalizarSessao(@PathVariable Long id, RedirectAttributes attr) {
         Reuniao reuniao = reuniaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reunião não encontrada"));
@@ -265,8 +278,6 @@ public class ReuniaoController {
 
         attr.addFlashAttribute("mensagem", "Sessão encerrada com sucesso! Os votos foram congelados.");
 
-        // Ajuste o redirect para o nome correto do seu método @GetMapping (que é
-        // /conducao)
         return "redirect:/reunioes/" + id + "/conducao";
     }
 
